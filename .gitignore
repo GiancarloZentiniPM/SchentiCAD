@@ -1,0 +1,41 @@
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+*.sln.docstates
+
+# Build
+bin/
+obj/
+build/
+dist/
+out/
+
+# Dependencies
+node_modules/
+packages/
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Temp
+*.tmp
+*.temp
+~$*
+
+# Compiled
+*.dll
+*.exe
+*.pdb
+
+# User-specific
+*.user
+*.userosscache
+*.sln.docstates
