@@ -644,7 +644,7 @@ test.describe("Property Panel", () => {
   test("shows editable BMK input with correct value", async ({ page }) => {
     const elId = await placeElement(page, "sym-contactor", 100, 100);
     await selectElements(page, [elId]);
-    const bmkInput = page.locator(".property-input");
+    const bmkInput = page.locator(".property-input").first();
     await expect(bmkInput).toBeVisible();
     await expect(bmkInput).toHaveValue("-K1");
   });
@@ -653,7 +653,7 @@ test.describe("Property Panel", () => {
     const elId = await placeElement(page, "sym-contactor", 100, 100);
     await selectElements(page, [elId]);
 
-    const bmkInput = page.locator(".property-input");
+    const bmkInput = page.locator(".property-input").first();
     await bmkInput.fill("-K42");
     await bmkInput.blur();
     await page.waitForTimeout(500);
@@ -1277,7 +1277,7 @@ test.describe("Edge Cases", () => {
   test("keyboard shortcuts disabled in input fields", async ({ page }) => {
     const elId = await placeElement(page, "sym-contactor", 100, 100);
     await selectElements(page, [elId]);
-    const bmkInput = page.locator(".property-input");
+    const bmkInput = page.locator(".property-input").first();
     await bmkInput.focus();
     await page.keyboard.press("d");
     await expect(page.locator('.toolbar-btn[title="Auswahl (V)"]')).toHaveClass(/active/);

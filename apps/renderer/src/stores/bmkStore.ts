@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { BmkEntry } from "@schenticad/shared";
+import { dbSync } from "../services/dbSync";
 
 // ============================================================
 // BMK Pool Manager — IEC 81346 Auto-Numbering
@@ -123,16 +124,27 @@ export const useBmkStore = create<BmkState>((set, get) => ({
     };
 
     set((s) => ({ entries: [...s.entries, entry] }));
+    dbSync.allocateBmk({
+      projectId: entry.projectId,
+      prefix: entry.prefix,
+      elementId: entry.elementId,
+      plantDesignation: entry.plantDesignation,
+      locationDesignation: entry.locationDesignation,
+    });
     return fullDesignation;
   },
 
   free: (elementId) => {
+    const entry = get().entries.find((e) => e.elementId === elementId);
     set((s) => ({ entries: s.entries.filter((e) => e.elementId !== elementId) }));
+    if (entry) dbSync.deleteBmk(entry.id);
   },
 
   freeMany: (elementIds) => {
     const idSet = new Set(elementIds);
+    const toDelete = get().entries.filter((e) => idSet.has(e.elementId));
     set((s) => ({ entries: s.entries.filter((e) => !idSet.has(e.elementId)) }));
+    for (const entry of toDelete) dbSync.deleteBmk(entry.id);
   },
 
   rename: (elementId, newDesignation) => {

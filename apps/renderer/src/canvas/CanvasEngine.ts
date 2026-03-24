@@ -1,5 +1,5 @@
 import { Application, Container, Graphics, Text, TextStyle, FederatedPointerEvent } from "pixi.js";
-import type { PlacedElement, Wire, SymbolDefinition, GeometryPrimitive, TitleBlockData } from "@schenticad/shared";
+import type { PlacedElement, Wire, SymbolDefinition, GeometryPrimitive, TitleBlockData, CrossReference, Page } from "@schenticad/shared";
 import { BUILTIN_SYMBOLS } from "../stores/symbolLibrary";
 import { getTitleBlockPosition, TITLE_BLOCK_ROWS, resolveTitleBlockValue } from "../templates/titleBlock";
 
@@ -18,6 +18,7 @@ export interface CanvasCallbacks {
   onElementClick: (elementId: string, shiftKey: boolean) => void;
   onCanvasClick: (x: number, y: number) => void;
   onElementDragEnd: (elementId: string, x: number, y: number) => void;
+  onCrossRefClick?: (targetPageId: string, targetElementId: string) => void;
 }
 
 export class CanvasEngine {
@@ -27,6 +28,7 @@ export class CanvasEngine {
   private wireLayer: Container;
   private symbolLayer: Container;
   private selectionLayer: Container;
+  private crossRefLayer: Container;
   private overlayLayer: Container;
   private sheetBackground: Graphics;
 
@@ -72,6 +74,7 @@ export class CanvasEngine {
     this.wireLayer = new Container();
     this.symbolLayer = new Container();
     this.selectionLayer = new Container();
+    this.crossRefLayer = new Container();
     this.overlayLayer = new Container();
     this.titleBlockLayer = new Container();
     this.sheetBackground = new Graphics();
@@ -102,6 +105,7 @@ export class CanvasEngine {
     this.viewport.addChild(this.wireLayer);
     this.viewport.addChild(this.symbolLayer);
     this.viewport.addChild(this.selectionLayer);
+    this.viewport.addChild(this.crossRefLayer);
     this.viewport.addChild(this.titleBlockLayer);
     this.viewport.addChild(this.overlayLayer);
     this.app.stage.addChild(this.viewport);
@@ -417,6 +421,66 @@ export class CanvasEngine {
       }
 
       this.wireLayer.addChild(g);
+    }
+  }
+
+  // ─── Cross-Reference Rendering ─────────────────────
+
+  renderCrossReferences(refs: CrossReference[], currentPageId: string, pages: Page[]) {
+    this.crossRefLayer.removeChildren();
+    const s = PIXELS_PER_MM;
+    const pageMap = new Map(pages.map((p) => [p.id, p]));
+
+    for (const ref of refs) {
+      // Determine which side is on the current page
+      const isSource = ref.sourcePageId === currentPageId;
+      const x = isSource ? ref.sourcePosition.x : ref.targetPosition.x;
+      const y = isSource ? ref.sourcePosition.y : ref.targetPosition.y;
+      const targetPageId = isSource ? ref.targetPageId : ref.sourcePageId;
+      const targetElementId = isSource ? ref.targetElementId : ref.sourceElementId;
+      const targetPage = pageMap.get(targetPageId);
+
+      const container = new Container();
+      container.x = x * s;
+      container.y = y * s;
+
+      const gfx = new Graphics();
+
+      // Draw break marker: small triangle + line
+      const size = 4 * s;
+      gfx.moveTo(0, -size / 2);
+      gfx.lineTo(size * 0.6, 0);
+      gfx.lineTo(0, size / 2);
+      gfx.closePath();
+      gfx.fill({ color: 0x007acc, alpha: 0.8 });
+      gfx.moveTo(-size * 0.3, -size / 2);
+      gfx.lineTo(-size * 0.3, size / 2);
+      gfx.stroke({ color: 0x007acc, width: 1.5 });
+
+      container.addChild(gfx);
+
+      // Page label
+      const pageLabel = targetPage ? `→ S.${targetPage.pageNumber}` : `→ ${ref.label}`;
+      const style = new TextStyle({
+        fontSize: 8,
+        fill: 0x007acc,
+        fontFamily: "Consolas, monospace",
+        fontWeight: "bold",
+      });
+      const label = new Text({ text: pageLabel, style });
+      label.x = size * 0.8;
+      label.y = -5;
+      container.addChild(label);
+
+      // Make clickable for jump-to
+      container.eventMode = "static";
+      container.cursor = "pointer";
+      container.on("pointerdown", (e: FederatedPointerEvent) => {
+        e.stopPropagation();
+        this.callbacks.onCrossRefClick?.(targetPageId, targetElementId);
+      });
+
+      this.crossRefLayer.addChild(container);
     }
   }
 

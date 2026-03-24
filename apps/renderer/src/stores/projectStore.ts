@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { PlacedElement, Wire, Page } from "@schenticad/shared";
+import { dbSync } from "../services/dbSync";
 
 interface ProjectState {
   projectId: string;
@@ -75,30 +76,47 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       selectedElementIds: [],
     }),
 
-  addPage: (page) => set((s) => ({ pages: [...s.pages, page] })),
+  addPage: (page) => {
+    set((s) => ({ pages: [...s.pages, page] }));
+    dbSync.createPage(page);
+  },
 
-  addElement: (element) => set((s) => ({ elements: [...s.elements, element] })),
+  addElement: (element) => {
+    set((s) => ({ elements: [...s.elements, element] }));
+    dbSync.createElement(element);
+  },
 
-  updateElement: (id, updates) =>
+  updateElement: (id, updates) => {
     set((s) => ({
       elements: s.elements.map((e) => (e.id === id ? { ...e, ...updates } : e)),
-    })),
+    }));
+    dbSync.updateElement(id, updates);
+  },
 
-  removeElements: (ids) =>
+  removeElements: (ids) => {
     set((s) => ({
       elements: s.elements.filter((e) => !ids.includes(e.id)),
       selectedElementIds: s.selectedElementIds.filter((id) => !ids.includes(id)),
-    })),
+    }));
+    dbSync.deleteElements(ids);
+  },
 
-  addWire: (wire) => set((s) => ({ wires: [...s.wires, wire] })),
+  addWire: (wire) => {
+    set((s) => ({ wires: [...s.wires, wire] }));
+    dbSync.createWire(wire);
+  },
 
-  updateWire: (id, updates) =>
+  updateWire: (id, updates) => {
     set((s) => ({
       wires: s.wires.map((w) => (w.id === id ? { ...w, ...updates } : w)),
-    })),
+    }));
+    dbSync.updateWire(id, updates);
+  },
 
-  removeWire: (id) =>
-    set((s) => ({ wires: s.wires.filter((w) => w.id !== id) })),
+  removeWire: (id) => {
+    set((s) => ({ wires: s.wires.filter((w) => w.id !== id) }));
+    dbSync.deleteWire(id);
+  },
 
   updateWireConnections: (wireId, startConnectionId, endConnectionId) =>
     set((s) => ({
@@ -122,12 +140,14 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     })),
   clearSelection: () => set({ selectedElementIds: [] }),
 
-  moveElements: (ids, dx, dy) =>
+  moveElements: (ids, dx, dy) => {
     set((s) => ({
       elements: s.elements.map((e) =>
         ids.includes(e.id) ? { ...e, x: e.x + dx, y: e.y + dy } : e,
       ),
-    })),
+    }));
+    dbSync.moveElements(ids, get().elements);
+  },
 
   getElementsByPage: (pageId) => get().elements.filter((e) => e.pageId === pageId),
   getWiresByPage: (pageId) => get().wires.filter((w) => w.pageId === pageId),

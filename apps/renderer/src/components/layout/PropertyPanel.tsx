@@ -3,6 +3,7 @@ import { useProjectStore } from "../../stores/projectStore";
 import { useUIStore } from "../../stores/uiStore";
 import { useSymbolLibrary } from "../../stores/symbolLibrary";
 import { useBmkStore } from "../../stores/bmkStore";
+import { useCrossRefStore } from "../../stores/crossRefStore";
 
 export function PropertyPanel() {
   const selectedElementIds = useProjectStore((s) => s.selectedElementIds);
@@ -15,6 +16,8 @@ export function PropertyPanel() {
   const placingSymbolId = useUIStore((s) => s.placingSymbolId);
   const symbols = useSymbolLibrary((s) => s.symbols);
   const bmkEntries = useBmkStore((s) => s.entries);
+  const crossRefs = useCrossRefStore((s) => s.references);
+  const setActivePageId = useUIStore((s) => s.setActivePageId);
 
   const [bmkError, setBmkError] = useState<string | null>(null);
 
@@ -137,6 +140,94 @@ export function PropertyPanel() {
               <span className="property-label">Kategorie:</span>
               <span className="property-value">{selectedSymbol.category}</span>
             </div>
+
+            {/* IEC 81346: Plant / Location */}
+            {selectedBmk && (
+              <>
+                <div className="property-row">
+                  <span className="property-label">Anlage (==):</span>
+                  <input
+                    className="property-input"
+                    value={selectedBmk.plantDesignation ?? ""}
+                    placeholder="z.B. ==M01"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      useBmkStore.setState((s) => ({
+                        entries: s.entries.map((b) =>
+                          b.elementId === selectedElement.id
+                            ? { ...b, plantDesignation: val }
+                            : b,
+                        ),
+                      }));
+                    }}
+                    style={{ width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "2px 4px", fontSize: 12 }}
+                  />
+                </div>
+                <div className="property-row">
+                  <span className="property-label">Ort (+):</span>
+                  <input
+                    className="property-input"
+                    value={selectedBmk.locationDesignation ?? ""}
+                    placeholder="z.B. +ET1"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      useBmkStore.setState((s) => ({
+                        entries: s.entries.map((b) =>
+                          b.elementId === selectedElement.id
+                            ? { ...b, locationDesignation: val }
+                            : b,
+                        ),
+                      }));
+                    }}
+                    style={{ width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "2px 4px", fontSize: 12 }}
+                  />
+                </div>
+                <div className="property-row">
+                  <span className="property-label">Vollbez.:</span>
+                  <span className="property-value" style={{ fontFamily: "Consolas, monospace", color: "var(--accent)" }}>
+                    {selectedBmk.plantDesignation || ""}
+                    {selectedBmk.locationDesignation || ""}
+                    {selectedBmk.fullDesignation}
+                  </span>
+                </div>
+              </>
+            )}
+
+            {/* Contact Mirror (for contactors/relays) */}
+            {selectedElement && (selectedSymbol.id === "sym-contactor" || selectedSymbol.id === "sym-relay") && (() => {
+              const relatedRefs = crossRefs.filter(
+                (r) => r.sourceElementId === selectedElement.id || r.targetElementId === selectedElement.id,
+              );
+              if (relatedRefs.length === 0) return null;
+              return (
+                <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: 8, marginTop: 8 }}>
+                  <div style={{ fontSize: 11, color: "var(--accent)", fontWeight: 600, marginBottom: 4 }}>
+                    KONTAKTSPIEGEL
+                  </div>
+                  {relatedRefs.map((ref) => {
+                    const targetPage = pages.find(
+                      (p) => p.id === (ref.sourceElementId === selectedElement.id ? ref.targetPageId : ref.sourcePageId),
+                    );
+                    return (
+                      <div
+                        key={ref.id}
+                        className="property-row"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                          const pageId = ref.sourceElementId === selectedElement.id ? ref.targetPageId : ref.sourcePageId;
+                          setActivePageId(pageId);
+                        }}
+                      >
+                        <span className="property-label">{ref.label || "Kontakt"}:</span>
+                        <span className="property-value" style={{ color: "var(--accent)" }}>
+                          → S.{targetPage?.pageNumber ?? "?"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         )}
 
