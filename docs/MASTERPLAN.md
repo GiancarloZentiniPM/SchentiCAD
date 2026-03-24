@@ -129,10 +129,10 @@ DB-Sync + Elektro-Logik → Git-Versioning → Automatisierung/UX → EDZ-Import
 |---|---|---|---|
 | A1 | API-Client & TanStack Query Setup | ✅ | `api/client.ts`, `api/hooks.ts`, `main.tsx` |
 | A2 | Query + Mutation Hooks | ✅ | `api/hooks.ts` |
-| A2b | Stores → DB Sync wiring | ⬜ | `stores/projectStore.ts` |
-| A3 | Projekt-Picker UI + React Router | ⬜ | `components/ProjectPicker.tsx` |
-| A4 | CrossReference Backend-Modul | ⬜ | `backend/modules/cross-reference/` |
-| A5 | Plant/Location Backend-Module | ⬜ | `backend/modules/plant/`, `modules/location/` |
+| A2b | Stores → DB Sync wiring | ✅ | `stores/projectStore.ts`, `services/dbSync.ts` |
+| A3 | Projekt-Picker UI + React Router | ✅ | `components/ProjectPicker.tsx`, `main.tsx` |
+| A4 | CrossReference Backend-Modul | ✅ | `backend/modules/cross-reference/` |
+| A5 | Plant/Location Backend-Module | ✅ | `backend/modules/plant/`, `modules/location/` |
 
 **A2b — Stores → DB Sync (nächster Schritt)**
 - Zustand-Actions (`addElement`, `deleteElement`, `addWire`, etc.) mit API-Mutations verbinden
@@ -159,9 +159,9 @@ DB-Sync + Elektro-Logik → Git-Versioning → Automatisierung/UX → EDZ-Import
 | ID | Task | Status | Dateien |
 |---|---|---|---|
 | B1 | Living Wire — Connection Detection | ✅ | `services/netlistBuilder.ts` |
-| B2 | Cross-Reference Rendering | ⬜ | `canvas/CanvasEngine.ts` |
+| B2 | Cross-Reference Rendering | ✅ | `canvas/CanvasEngine.ts` |
 | B3 | Fehlende ERC-Regeln (3 neue) | ✅ | `workers/ercWorker.ts` |
-| B4 | IEC 81346 Strukturkennzeichen UI | ⬜ | `stores/bmkStore.ts`, `PropertyPanel.tsx` |
+| B4 | IEC 81346 Strukturkennzeichen UI | ✅ | `stores/bmkStore.ts`, `PropertyPanel.tsx` |
 
 **B2 — Cross-Reference Rendering**
 - CrossRef-Symbole im Canvas (Abbruchstellen: Pfeil + Seitenangabe)
