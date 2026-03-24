@@ -1,0 +1,32 @@
+{
+  "name": "@schenticad/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "clean": "rimraf dist out",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@schenticad/shared": "workspace:*",
+    "@electron-toolkit/utils": "^4.0.0"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-vite": "^3.1.0",
+    "@vitejs/plugin-react": "^4.4.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "rimraf": "^6.0.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "zustand": "^5.0.0",
+    "@tanstack/react-query": "^5.75.0",
+    "vite": "^6.3.0"
+  }
+}

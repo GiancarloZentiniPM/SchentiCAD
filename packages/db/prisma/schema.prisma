@@ -1,0 +1,179 @@
+// ============================================================
+// SchentiCAD Prisma Schema — IEC 81346 Data Model + SQLite
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// --- Project ---
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  company     String   @default("")
+  creator     String   @default("")
+  description String   @default("")
+  revision    Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  pages           Page[]
+  plants          Plant[]
+  bmkEntries      BmkEntry[]
+  crossReferences CrossReference[]
+
+  @@map("projects")
+}
+
+// --- Page ---
+model Page {
+  id          String   @id @default(cuid())
+  projectId   String
+  name        String
+  pageNumber  Int
+  type        String   @default("schematic") // schematic | terminal_plan | cable_plan | table_of_contents | title_page | custom
+  format      String   @default("A3")        // A4 | A3 | A2 | A1 | A0
+  orientation String   @default("landscape")  // landscape | portrait
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project  Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  elements PlacedElement[]
+  wires    Wire[]
+
+  sourceCrossRefs CrossReference[] @relation("SourcePage")
+  targetCrossRefs CrossReference[] @relation("TargetPage")
+
+  @@map("pages")
+}
+
+// --- IEC 81346: Plant (Anlage ==) ---
+model Plant {
+  id          String @id @default(cuid())
+  projectId   String
+  designation String // e.g. "==M01"
+  name        String
+  description String @default("")
+
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  locations Location[]
+
+  @@unique([projectId, designation])
+  @@map("plants")
+}
+
+// --- IEC 81346: Location (Einbauort +) ---
+model Location {
+  id          String @id @default(cuid())
+  plantId     String
+  designation String // e.g. "+ET1"
+  name        String
+  description String @default("")
+
+  plant Plant @relation(fields: [plantId], references: [id], onDelete: Cascade)
+
+  @@unique([plantId, designation])
+  @@map("locations")
+}
+
+// --- Symbol Definition (Library) ---
+model SymbolDefinition {
+  id               String @id @default(cuid())
+  name             String
+  category         String // IEC category
+  geometry         String // JSON: GeometryPrimitive[]
+  connectionPoints String // JSON: ConnectionPoint[]
+  width            Float
+  height           Float
+  description      String @default("")
+
+  instances PlacedElement[]
+
+  @@map("symbol_definitions")
+}
+
+// --- Placed Element (Instance on Page) ---
+model PlacedElement {
+  id         String  @id @default(cuid())
+  pageId     String
+  symbolId   String
+  x          Float
+  y          Float
+  rotation   Int     @default(0)  // 0, 90, 180, 270
+  mirrored   Boolean @default(false)
+  bmk        String  @default("") // e.g. "-K1"
+  properties String  @default("{}") // JSON: Record<string, string>
+
+  page   Page             @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  symbol SymbolDefinition @relation(fields: [symbolId], references: [id])
+
+  bmkEntry        BmkEntry?
+  sourceCrossRefs CrossReference[] @relation("SourceElement")
+  targetCrossRefs CrossReference[] @relation("TargetElement")
+
+  @@map("placed_elements")
+}
+
+// --- Wire (Living Wire) ---
+model Wire {
+  id                String @id @default(cuid())
+  pageId            String
+  name              String @default("")
+  path              String // JSON: WireSegment[]
+  gauge             String @default("1.5") // mm²
+  color             String @default("BK")  // wire color code
+  articleNumber     String @default("")
+  startConnectionId String @default("")
+  endConnectionId   String @default("")
+  potential         String @default("")
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@map("wires")
+}
+
+// --- BMK (Betriebsmittelkennzeichen) ---
+model BmkEntry {
+  id                  String  @id @default(cuid())
+  projectId           String
+  prefix              String  // e.g. "-K", "-Q", "-F"
+  number              Int
+  fullDesignation     String  // e.g. "-K1"
+  elementId           String  @unique
+  plantDesignation    String  @default("")
+  locationDesignation String  @default("")
+
+  project Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  element PlacedElement @relation(fields: [elementId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, fullDesignation])
+  @@map("bmk_entries")
+}
+
+// --- Cross Reference ---
+model CrossReference {
+  id              String @id @default(cuid())
+  projectId       String
+  sourcePageId    String
+  sourceElementId String
+  sourceX         Float
+  sourceY         Float
+  targetPageId    String
+  targetElementId String
+  targetX         Float
+  targetY         Float
+  label           String @default("")
+
+  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sourcePage    Page          @relation("SourcePage", fields: [sourcePageId], references: [id])
+  targetPage    Page          @relation("TargetPage", fields: [targetPageId], references: [id])
+  sourceElement PlacedElement @relation("SourceElement", fields: [sourceElementId], references: [id])
+  targetElement PlacedElement @relation("TargetElement", fields: [targetElementId], references: [id])
+
+  @@map("cross_references")
+}

@@ -18,9 +18,29 @@ SchentiCAD ist eine moderne Elektro-CAD-Anwendung für die Planung und Dokumenta
 
 ## Tech Stack
 
-- **Frontend:** [wird festgelegt]
-- **Backend:** [wird festgelegt]
-- **Dateiformat:** [wird festgelegt]
+- **Frontend:** React 19 + TypeScript (Strict Mode)
+- **Graphics Engine:** PixiJS (WebGL/WebGPU)
+- **State:** Zustand + TanStack Query
+- **Backend:** NestJS + Fastify
+- **Datenbank:** SQLite (embedded via Prisma)
+- **Desktop:** Electron
+- **Monorepo:** Turborepo + pnpm Workspaces
+
+## Projektstruktur
+
+```
+SchentiCAD/
+├── apps/
+│   ├── desktop/          # Electron Desktop App
+│   └── renderer/         # React 19 + Vite UI (Web)
+├── packages/
+│   ├── backend/          # NestJS + Fastify API
+│   ├── db/               # Prisma + SQLite Schema
+│   └── shared/           # TypeScript Types & Constants
+├── turbo.json            # Turborepo Pipeline
+├── pnpm-workspace.yaml   # Workspace Config
+└── tsconfig.base.json    # Shared TS Config
+```
 
 ## Getting Started
 
@@ -29,7 +49,14 @@ SchentiCAD ist eine moderne Elektro-CAD-Anwendung für die Planung und Dokumenta
 git clone https://github.com/GiancarloZentiniPM/SchentiCAD.git
 cd SchentiCAD
 
-# Weitere Anweisungen folgen...
+# Dependencies installieren
+pnpm install
+
+# Datenbank initialisieren
+pnpm db:push
+
+# Entwicklungsserver starten
+pnpm dev
 ```
 
 ## Lizenz

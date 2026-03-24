@@ -11,10 +11,10 @@ obj/
 build/
 dist/
 out/
+.turbo/
 
 # Dependencies
 node_modules/
-packages/
 
 # OS
 Thumbs.db
@@ -24,6 +24,10 @@ desktop.ini
 # Logs
 *.log
 logs/
+
+# Test artifacts
+test-results/
+playwright-report/
 
 # Temp
 *.tmp
@@ -39,3 +43,12 @@ logs/
 *.user
 *.userosscache
 *.sln.docstates
+
+# Database
+*.db
+*.db-journal
+
+# Environment
+.env
+.env.local
+.env.*.local

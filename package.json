@@ -1,0 +1,29 @@
+{
+  "name": "schenticad",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SchentiCAD – Elektro-CAD Software",
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "db:generate": "pnpm --filter @schenticad/db generate",
+    "db:migrate": "pnpm --filter @schenticad/db migrate",
+    "db:push": "pnpm --filter @schenticad/db push"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/client",
+      "@prisma/engines",
+      "electron",
+      "esbuild",
+      "prisma"
+    ]
+  }
+}
