@@ -26,6 +26,8 @@ model Project {
   plants          Plant[]
   bmkEntries      BmkEntry[]
   crossReferences CrossReference[]
+  branches        Branch[]
+  commits         Commit[]
 
   @@map("projects")
 }
@@ -176,4 +178,54 @@ model CrossReference {
   targetElement PlacedElement @relation("TargetElement", fields: [targetElementId], references: [id])
 
   @@map("cross_references")
+}
+
+model Branch {
+  id             String   @id @default(uuid())
+  projectId      String
+  name           String
+  headCommitId   String?
+  createdAt      DateTime @default(now())
+
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  headCommit Commit?  @relation("BranchHead", fields: [headCommitId], references: [id])
+  commits    Commit[] @relation("CommitBranch")
+
+  @@unique([projectId, name])
+  @@map("branches")
+}
+
+model Commit {
+  id             String   @id @default(uuid())
+  projectId      String
+  branchId       String
+  parentCommitId String?
+  message        String
+  authorName     String   @default("")
+  snapshotHash   String   @default("")
+  snapshot       String   @default("{}")
+  createdAt      DateTime @default(now())
+
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  branch       Branch        @relation("CommitBranch", fields: [branchId], references: [id])
+  parentCommit Commit?       @relation("CommitParent", fields: [parentCommitId], references: [id])
+  children     Commit[]      @relation("CommitParent")
+  deltas       CommitDelta[]
+  headOfBranch Branch[]      @relation("BranchHead")
+
+  @@map("commits")
+}
+
+model CommitDelta {
+  id         String @id @default(uuid())
+  commitId   String
+  entityType String
+  entityId   String
+  operation  String
+  oldValue   String @default("{}")
+  newValue   String @default("{}")
+
+  commit Commit @relation(fields: [commitId], references: [id], onDelete: Cascade)
+
+  @@map("commit_deltas")
 }

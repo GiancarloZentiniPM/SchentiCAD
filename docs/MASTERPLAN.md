@@ -184,8 +184,8 @@ DB-Sync + Elektro-Logik → Git-Versioning → Automatisierung/UX → EDZ-Import
 
 | ID | Task | Dateien |
 |---|---|---|
-| 2.1 | JSON-Diff/Patch Logik | `packages/versioning/src/diff.ts`, `patch.ts` |
-| 2.2 | Commit & History | `backend/modules/versioning/`, DB: Commit, CommitDelta |
+| 2.1 | JSON-Diff/Patch Logik ✅ | `packages/versioning/src/diff.ts`, `patch.ts` |
+| 2.2 | Commit & History ✅ | `backend/modules/versioning/`, DB: Commit, CommitDelta, Branch |
 | 2.3 | Branch & Merge | DB: Branch, UI: Branch-Selector, Conflict-Resolver |
 
 **2.1 — JSON-Diff/Patch**

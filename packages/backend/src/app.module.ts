@@ -8,6 +8,7 @@ import { BmkModule } from "./modules/bmk/bmk.module";
 import { CrossReferenceModule } from "./modules/cross-reference/cross-reference.module";
 import { PlantModule } from "./modules/plant/plant.module";
 import { LocationModule } from "./modules/location/location.module";
+import { VersioningModule } from "./modules/versioning/versioning.module";
 import { HealthController } from "./health.controller";
 
 @Module({
@@ -21,6 +22,7 @@ import { HealthController } from "./health.controller";
     CrossReferenceModule,
     PlantModule,
     LocationModule,
+    VersioningModule,
   ],
   controllers: [HealthController],
 })
