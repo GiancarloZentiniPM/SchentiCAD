@@ -664,3 +664,254 @@ body,
     transform: rotate(360deg);
   }
 }
+
+/* ============================================================
+   Versioning — Branch Selector, Commit Dialog, History, Conflicts
+   ============================================================ */
+
+.branch-select {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-family: var(--font-family);
+  outline: none;
+  cursor: pointer;
+  max-width: 140px;
+}
+
+.branch-select:focus {
+  border-color: var(--accent);
+}
+
+.branch-indicator {
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 2px 6px;
+}
+
+/* Commit Dialog */
+
+.commit-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.commit-dialog {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  width: 400px;
+  max-width: 90vw;
+}
+
+.commit-dialog-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-bright);
+  margin-bottom: 12px;
+}
+
+.commit-dialog-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: var(--font-family);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.commit-dialog-input:focus {
+  border-color: var(--accent);
+}
+
+.commit-dialog-info {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.commit-dialog-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* History / Commit Items */
+
+.commit-item {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+}
+
+.commit-item:hover {
+  background: var(--bg-hover);
+}
+
+.commit-message {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.commit-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Conflict Resolver */
+
+.conflict-resolver-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.conflict-resolver {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  width: 600px;
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.conflict-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--warning, #e5c07b);
+  margin-bottom: 12px;
+}
+
+.conflict-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.conflict-entry {
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.conflict-entity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.conflict-type {
+  font-size: 10px;
+  text-transform: uppercase;
+  background: var(--bg-tertiary);
+  color: var(--accent);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.conflict-id {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.conflict-sides {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.conflict-choice {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: 11px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.conflict-choice:hover {
+  border-color: var(--accent);
+}
+
+.conflict-choice.chosen {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.conflict-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.conflict-side {
+  background: var(--bg-primary);
+  border-radius: 3px;
+  padding: 6px;
+  overflow: auto;
+  max-height: 120px;
+}
+
+.conflict-side-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.conflict-side pre {
+  margin: 0;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.conflict-side.ours {
+  border-left: 2px solid var(--accent);
+}
+
+.conflict-side.theirs {
+  border-left: 2px solid var(--warning, #e5c07b);
+}
+
+.conflict-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}

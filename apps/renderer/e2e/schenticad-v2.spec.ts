@@ -203,9 +203,9 @@ test.describe("Application Shell", () => {
 // ===========================================================================
 
 test.describe("Activity Bar & Sidebar Navigation", () => {
-  test("has 5 activity bar buttons", async ({ page }) => {
+  test("has 6 activity bar buttons", async ({ page }) => {
     const items = page.locator(".activity-bar-item");
-    await expect(items).toHaveCount(5);
+    await expect(items).toHaveCount(6);
   });
 
   test("Explorer view is active by default", async ({ page }) => {

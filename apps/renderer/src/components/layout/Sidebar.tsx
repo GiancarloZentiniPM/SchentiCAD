@@ -3,6 +3,7 @@ import { useProjectStore } from "../../stores/projectStore";
 import { useSymbolLibrary, BUILTIN_SYMBOLS } from "../../stores/symbolLibrary";
 import { useBmkStore } from "../../stores/bmkStore";
 import { generateBom, generateWireList, toCsv, downloadFile } from "../../services/bomGenerator";
+import { HistoryView } from "../versioning/HistoryView";
 
 const sidebarTitles = {
   explorer: "EXPLORER",
@@ -10,6 +11,7 @@ const sidebarTitles = {
   search: "SUCHE",
   bom: "STÜCKLISTE",
   settings: "EINSTELLUNGEN",
+  history: "VERSIONSHISTORIE",
 } as const;
 
 export function Sidebar() {
@@ -24,6 +26,7 @@ export function Sidebar() {
         {sidebarView === "search" && <SearchView />}
         {sidebarView === "bom" && <BomView />}
         {sidebarView === "settings" && <SettingsView />}
+        {sidebarView === "history" && <HistoryView />}
       </div>
     </div>
   );

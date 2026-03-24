@@ -6,6 +6,7 @@ const items: { view: SidebarView; icon: string; label: string }[] = [
   { view: "symbols", icon: "🔌", label: "Symbole" },
   { view: "search", icon: "🔍", label: "Suche" },
   { view: "bom", icon: "📋", label: "Stückliste" },
+  { view: "history", icon: "🕐", label: "Versionshistorie" },
   { view: "settings", icon: "⚙️", label: "Einstellungen" },
 ];
 

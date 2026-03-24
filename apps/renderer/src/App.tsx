@@ -7,6 +7,8 @@ import { CanvasArea } from "./components/layout/CanvasArea";
 import { PropertyPanel } from "./components/layout/PropertyPanel";
 import { Statusbar } from "./components/layout/Statusbar";
 import { ProblemsPanel } from "./components/panels/ProblemsPanel";
+import { CommitDialog } from "./components/versioning/CommitDialog";
+import { ConflictResolver } from "./components/versioning/ConflictResolver";
 import { useUIStore } from "./stores/uiStore";
 import { useProjectStore } from "./stores/projectStore";
 import { useBmkStore } from "./stores/bmkStore";
@@ -68,6 +70,8 @@ export function App() {
       </div>
       {propertyPanelVisible && <PropertyPanel />}
       <Statusbar />
+      <CommitDialog />
+      <ConflictResolver />
     </div>
   );
 }

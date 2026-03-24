@@ -1,6 +1,7 @@
 import { useUIStore } from "../../stores/uiStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { useBmkStore } from "../../stores/bmkStore";
+import { useVersioningStore } from "../../stores/versioningStore";
 import { BUILTIN_SYMBOLS } from "../../stores/symbolLibrary";
 import { exportToPdf } from "../../services/pdfExport";
 import { generateBom, generateWireList, generateTerminalPlan, generateCablePlan, toCsv, downloadFile } from "../../services/bomGenerator";
@@ -106,6 +107,36 @@ export function Toolbar() {
       <button className="toolbar-btn" onClick={handleExportLists} title="Listen exportieren (BOM, Drähte, Klemmen, Kabel)">
         📊 Listen
       </button>
+      <div className="toolbar-separator" />
+      <BranchSelector />
+      <button className="toolbar-btn" onClick={() => useVersioningStore.getState().openCommitDialog()} title="Commit erstellen">
+        💾 Commit
+      </button>
     </div>
+  );
+}
+
+function BranchSelector() {
+  const branches = useVersioningStore((s) => s.branches);
+  const activeBranchId = useVersioningStore((s) => s.activeBranchId);
+  const setActiveBranch = useVersioningStore((s) => s.setActiveBranch);
+
+  if (branches.length === 0) {
+    return <span className="branch-indicator">🌿 main</span>;
+  }
+
+  return (
+    <select
+      className="branch-select"
+      value={activeBranchId ?? ""}
+      onChange={(e) => setActiveBranch(e.target.value)}
+      title="Branch wechseln"
+    >
+      {branches.map((b) => (
+        <option key={b.id} value={b.id}>
+          🌿 {b.name}
+        </option>
+      ))}
+    </select>
   );
 }

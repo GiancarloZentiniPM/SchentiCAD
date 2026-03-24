@@ -182,7 +182,8 @@ export type SidebarView =
   | "symbols"
   | "search"
   | "bom"
-  | "settings";
+  | "settings"
+  | "history";
 
 export type ThemeMode = "dark" | "light";
 

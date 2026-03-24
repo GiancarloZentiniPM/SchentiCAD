@@ -118,3 +118,49 @@ export const bmkApi = {
   duplicates: (projectId: string) =>
     request<Record<string, any[]>>(`/api/bmk/duplicates?projectId=${encodeURIComponent(projectId)}`),
 };
+
+// --- Versioning ---
+
+export const versioningApi = {
+  // Branches
+  listBranches: (projectId: string) =>
+    request<any[]>(`/api/projects/${encodeURIComponent(projectId)}/versioning/branches`),
+  createBranch: (projectId: string, data: { name: string; headCommitId?: string }) =>
+    request<any>(`/api/projects/${encodeURIComponent(projectId)}/versioning/branches`, {
+      method: "POST", body: JSON.stringify(data),
+    }),
+  deleteBranch: (projectId: string, branchId: string) =>
+    request<void>(`/api/projects/${encodeURIComponent(projectId)}/versioning/branches/${encodeURIComponent(branchId)}`, {
+      method: "DELETE",
+    }),
+
+  // Commits
+  listCommits: (projectId: string, branchId?: string) => {
+    const q = branchId ? `?branchId=${encodeURIComponent(branchId)}` : "";
+    return request<any[]>(`/api/projects/${encodeURIComponent(projectId)}/versioning/commits${q}`);
+  },
+  getCommit: (projectId: string, commitId: string) =>
+    request<any>(`/api/projects/${encodeURIComponent(projectId)}/versioning/commits/${encodeURIComponent(commitId)}`),
+  createCommit: (projectId: string, data: {
+    branchId: string; parentCommitId?: string; message: string;
+    authorName?: string; snapshotHash?: string; snapshot?: string;
+    deltas?: { entityType: string; entityId: string; operation: string; oldValue?: string; newValue?: string }[];
+  }) =>
+    request<any>(`/api/projects/${encodeURIComponent(projectId)}/versioning/commits`, {
+      method: "POST", body: JSON.stringify(data),
+    }),
+
+  // Snapshot
+  getSnapshot: (projectId: string, commitId: string) =>
+    request<{ snapshot: any; hash: string }>(
+      `/api/projects/${encodeURIComponent(projectId)}/versioning/commits/${encodeURIComponent(commitId)}/snapshot`,
+    ),
+
+  // History
+  getHistory: (projectId: string, branchId: string, limit?: number) => {
+    const q = limit ? `?limit=${limit}` : "";
+    return request<any[]>(
+      `/api/projects/${encodeURIComponent(projectId)}/versioning/history/${encodeURIComponent(branchId)}${q}`,
+    );
+  },
+};
