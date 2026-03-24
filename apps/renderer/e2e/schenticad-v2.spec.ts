@@ -1510,3 +1510,320 @@ test.describe("BMK Fill Mode", () => {
     expect(mode).toBe("sequential");
   });
 });
+
+// ===========================================================================
+// 36. SYMBOL LIBRARY STORE EXTENSIONS
+// ===========================================================================
+
+test.describe("Symbol Library Store Extensions", () => {
+  test("initial symbols are 13 builtins", async ({ page }) => {
+    const count = await page.evaluate(() => {
+      return (window as any).__zustand_symbolLibrary?.getState()?.symbols?.length ?? 0;
+    });
+    expect(count).toBe(13);
+  });
+
+  test("addCustomSymbol adds a new symbol", async ({ page }) => {
+    await page.evaluate(() => {
+      const store = (window as any).__zustand_symbolLibrary?.getState();
+      store?.addCustomSymbol({
+        id: "custom-test-1",
+        name: "TestSymbol",
+        category: "Allgemein",
+        geometry: [{ type: "rect", x: 0, y: 0, width: 30, height: 30 }],
+        connectionPoints: [{ id: "cp-1", x: 15, y: 0, name: "P1", direction: "in" }],
+        width: 30,
+        height: 30,
+        description: "Test",
+      });
+    });
+    const count = await page.evaluate(() => {
+      return (window as any).__zustand_symbolLibrary?.getState()?.symbols?.length ?? 0;
+    });
+    expect(count).toBe(14);
+  });
+
+  test("removeCustomSymbol removes custom but not builtin", async ({ page }) => {
+    // Add and then remove
+    await page.evaluate(() => {
+      const store = (window as any).__zustand_symbolLibrary?.getState();
+      store?.addCustomSymbol({
+        id: "custom-remove-1",
+        name: "ToRemove",
+        category: "Allgemein",
+        geometry: [],
+        connectionPoints: [],
+        width: 20,
+        height: 20,
+      });
+    });
+    const before = await page.evaluate(() => {
+      return (window as any).__zustand_symbolLibrary?.getState()?.symbols?.length ?? 0;
+    });
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.removeCustomSymbol("custom-remove-1");
+    });
+    const after = await page.evaluate(() => {
+      return (window as any).__zustand_symbolLibrary?.getState()?.symbols?.length ?? 0;
+    });
+    expect(after).toBe(before - 1);
+
+    // Try removing a builtin — should not work
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.removeCustomSymbol("sym-contactor");
+    });
+    const builtinStillThere = await page.evaluate(() => {
+      return (window as any).__zustand_symbolLibrary?.getState()?.symbols?.some((s: any) => s.id === "sym-contactor");
+    });
+    expect(builtinStillThere).toBe(true);
+  });
+
+  test("custom symbol updates categories", async ({ page }) => {
+    await page.evaluate(() => {
+      const store = (window as any).__zustand_symbolLibrary?.getState();
+      store?.addCustomSymbol({
+        id: "custom-newcat-1",
+        name: "NeueKatTest",
+        category: "Sensoren",
+        geometry: [],
+        connectionPoints: [],
+        width: 20,
+        height: 20,
+      });
+    });
+    const categories = await page.evaluate(() => {
+      return (window as any).__zustand_symbolLibrary?.getState()?.categories ?? [];
+    });
+    expect(categories).toContain("Sensoren");
+  });
+
+  test("editorOpen toggles", async ({ page }) => {
+    const initial = await page.evaluate(() => {
+      return (window as any).__zustand_symbolLibrary?.getState()?.editorOpen;
+    });
+    expect(initial).toBe(false);
+
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.openEditor();
+    });
+    const opened = await page.evaluate(() => {
+      return (window as any).__zustand_symbolLibrary?.getState()?.editorOpen;
+    });
+    expect(opened).toBe(true);
+
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.closeEditor();
+    });
+    const closed = await page.evaluate(() => {
+      return (window as any).__zustand_symbolLibrary?.getState()?.editorOpen;
+    });
+    expect(closed).toBe(false);
+  });
+
+  test("importDialogOpen toggles", async ({ page }) => {
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.openImportDialog();
+    });
+    const opened = await page.evaluate(() => {
+      return (window as any).__zustand_symbolLibrary?.getState()?.importDialogOpen;
+    });
+    expect(opened).toBe(true);
+
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.closeImportDialog();
+    });
+    const closed = await page.evaluate(() => {
+      return (window as any).__zustand_symbolLibrary?.getState()?.importDialogOpen;
+    });
+    expect(closed).toBe(false);
+  });
+});
+
+// ===========================================================================
+// 37. SYMBOL EDITOR UI
+// ===========================================================================
+
+test.describe("Symbol Editor UI", () => {
+  test("opens and closes symbol editor", async ({ page }) => {
+    // Open editor via store
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.openEditor();
+    });
+    const editor = page.locator("[data-testid='symbol-editor']");
+    await expect(editor).toBeVisible({ timeout: 3000 });
+
+    // Has SVG canvas
+    const svg = page.locator("[data-testid='symbol-editor-svg']");
+    await expect(svg).toBeVisible();
+
+    // Has tool buttons
+    for (const tool of ["select", "line", "rect", "circle", "arc", "text", "connection"]) {
+      await expect(page.locator(`[data-testid='editor-tool-${tool}']`)).toBeVisible();
+    }
+
+    // Has name input
+    await expect(page.locator("[data-testid='symbol-name-input']")).toBeVisible();
+
+    // Has category select
+    await expect(page.locator("[data-testid='symbol-category-select']")).toBeVisible();
+
+    // Has save button (disabled when name is empty)
+    const saveBtn = page.locator("[data-testid='symbol-save-btn']");
+    await expect(saveBtn).toBeVisible();
+    await expect(saveBtn).toBeDisabled();
+
+    // Has import/export buttons
+    await expect(page.locator("[data-testid='symbol-import-btn']")).toBeVisible();
+    await expect(page.locator("[data-testid='symbol-export-btn']")).toBeVisible();
+
+    // Close editor
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.closeEditor();
+    });
+    await expect(editor).not.toBeVisible();
+  });
+
+  test("save button enables when name is filled", async ({ page }) => {
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.openEditor();
+    });
+    const nameInput = page.locator("[data-testid='symbol-name-input']");
+    const saveBtn = page.locator("[data-testid='symbol-save-btn']");
+
+    await expect(saveBtn).toBeDisabled();
+    await nameInput.fill("MeinSymbol");
+    await expect(saveBtn).toBeEnabled();
+
+    // Close
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.closeEditor();
+    });
+  });
+});
+
+// ===========================================================================
+// 38. SYMBOLS VIEW BUTTONS
+// ===========================================================================
+
+test.describe("Symbols View Buttons", () => {
+  test("has New Symbol and Import buttons", async ({ page }) => {
+    // Switch to symbols view
+    const symbolsBtn = page.locator(".activity-bar-item").nth(1);
+    await symbolsBtn.click();
+    await page.waitForTimeout(300);
+
+    const newSymbolBtn = page.locator("[data-testid='new-symbol-btn']");
+    await expect(newSymbolBtn).toBeVisible();
+
+    const importBtn = page.locator("[data-testid='import-edz-btn']");
+    await expect(importBtn).toBeVisible();
+  });
+
+  test("New Symbol button opens editor", async ({ page }) => {
+    const symbolsBtn = page.locator(".activity-bar-item").nth(1);
+    await symbolsBtn.click();
+    await page.waitForTimeout(300);
+
+    await page.locator("[data-testid='new-symbol-btn']").click();
+    await expect(page.locator("[data-testid='symbol-editor']")).toBeVisible({ timeout: 3000 });
+
+    // Close
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.closeEditor();
+    });
+  });
+
+  test("Import button opens EDZ dialog", async ({ page }) => {
+    const symbolsBtn = page.locator(".activity-bar-item").nth(1);
+    await symbolsBtn.click();
+    await page.waitForTimeout(300);
+
+    await page.locator("[data-testid='import-edz-btn']").click();
+    await expect(page.locator("[data-testid='edz-import-dialog']")).toBeVisible({ timeout: 3000 });
+
+    // Close
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.closeImportDialog();
+    });
+  });
+});
+
+// ===========================================================================
+// 39. EDZ IMPORT DIALOG
+// ===========================================================================
+
+test.describe("EDZ Import Dialog", () => {
+  test("opens with file select button", async ({ page }) => {
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.openImportDialog();
+    });
+    const dialog = page.locator("[data-testid='edz-import-dialog']");
+    await expect(dialog).toBeVisible({ timeout: 3000 });
+
+    // Has file select button
+    await expect(page.locator("[data-testid='edz-file-select']")).toBeVisible();
+
+    // Has import button (disabled when no symbols)
+    const importBtn = page.locator("[data-testid='edz-import-btn']");
+    await expect(importBtn).toBeVisible();
+    await expect(importBtn).toBeDisabled();
+
+    // Close
+    await page.evaluate(() => {
+      (window as any).__zustand_symbolLibrary?.getState()?.closeImportDialog();
+    });
+  });
+});
+
+// ===========================================================================
+// 40. CUSTOM SYMBOL PLACEMENT
+// ===========================================================================
+
+test.describe("Custom Symbol Placement", () => {
+  test("custom symbol can be placed like builtin", async ({ page }) => {
+    // Add a custom symbol
+    await page.evaluate(() => {
+      const store = (window as any).__zustand_symbolLibrary?.getState();
+      store?.addCustomSymbol({
+        id: "custom-place-test",
+        name: "PlaceTest",
+        category: "Allgemein",
+        geometry: [{ type: "rect", x: 0, y: 0, width: 30, height: 30 }],
+        connectionPoints: [{ id: "cp-1", x: 15, y: 0, name: "P1", direction: "in" }],
+        width: 30,
+        height: 30,
+      });
+    });
+
+    // Place it
+    const elId = await page.evaluate(() => {
+      const ps = (window as any).__zustand_projectStore?.getState();
+      const ui = (window as any).__zustand_uiStore?.getState();
+      const pageId = ui?.activePageId ?? "page-1";
+      const id = `el-custom-${Date.now()}`;
+      ps.addElement({
+        id,
+        pageId,
+        symbolId: "custom-place-test",
+        x: 200,
+        y: 200,
+        rotation: 0,
+        mirrored: false,
+        bmk: "-X1",
+        properties: {},
+      });
+      return id;
+    });
+    expect(elId).toBeTruthy();
+
+    // Verify it's in the store
+    const found = await page.evaluate(
+      (elId) => {
+        const ps = (window as any).__zustand_projectStore?.getState();
+        return ps?.elements?.some((e: any) => e.id === elId);
+      },
+      elId,
+    );
+    expect(found).toBe(true);
+  });
+});

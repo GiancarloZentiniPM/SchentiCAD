@@ -119,6 +119,36 @@ export const bmkApi = {
     request<Record<string, any[]>>(`/api/bmk/duplicates?projectId=${encodeURIComponent(projectId)}`),
 };
 
+// --- Symbols ---
+
+export const symbolsApi = {
+  list: (category?: string) => {
+    const q = category ? `?category=${encodeURIComponent(category)}` : "";
+    return request<any[]>(`/api/symbols${q}`);
+  },
+  get: (id: string) => request<any>(`/api/symbols/${encodeURIComponent(id)}`),
+  create: (data: {
+    name: string;
+    category: string;
+    geometry: string;
+    connectionPoints: string;
+    width: number;
+    height: number;
+    description?: string;
+  }) => request<any>("/api/symbols", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: {
+    name?: string;
+    category?: string;
+    geometry?: string;
+    connectionPoints?: string;
+    width?: number;
+    height?: number;
+    description?: string;
+  }) => request<any>(`/api/symbols/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (id: string) =>
+    request<void>(`/api/symbols/${encodeURIComponent(id)}`, { method: "DELETE" }),
+};
+
 // --- Versioning ---
 
 export const versioningApi = {

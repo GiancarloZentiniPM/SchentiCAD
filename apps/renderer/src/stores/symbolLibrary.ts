@@ -168,10 +168,18 @@ interface SymbolLibraryState {
   categories: string[];
   selectedCategory: string | null;
   searchQuery: string;
+  editorOpen: boolean;
+  importDialogOpen: boolean;
 
   filteredSymbols: () => SymbolDefinition[];
   setSelectedCategory: (cat: string | null) => void;
   setSearchQuery: (query: string) => void;
+  addCustomSymbol: (sym: SymbolDefinition) => void;
+  removeCustomSymbol: (id: string) => void;
+  openEditor: () => void;
+  closeEditor: () => void;
+  openImportDialog: () => void;
+  closeImportDialog: () => void;
 }
 
 export const useSymbolLibrary = create<SymbolLibraryState>((set, get) => {
@@ -182,6 +190,8 @@ export const useSymbolLibrary = create<SymbolLibraryState>((set, get) => {
     categories,
     selectedCategory: null,
     searchQuery: "",
+    editorOpen: false,
+    importDialogOpen: false,
 
     filteredSymbols: () => {
       const { symbols, selectedCategory, searchQuery } = get();
@@ -200,6 +210,28 @@ export const useSymbolLibrary = create<SymbolLibraryState>((set, get) => {
 
     setSelectedCategory: (cat) => set({ selectedCategory: cat }),
     setSearchQuery: (query) => set({ searchQuery: query }),
+
+    addCustomSymbol: (sym) =>
+      set((s) => {
+        const symbols = [...s.symbols, sym];
+        const categories = [...new Set(symbols.map((s) => s.category))];
+        return { symbols, categories };
+      }),
+
+    removeCustomSymbol: (id) =>
+      set((s) => {
+        // Don't allow removing builtins
+        if (BUILTIN_SYMBOLS.some((b) => b.id === id)) return s;
+        const symbols = s.symbols.filter((sym) => sym.id !== id);
+        const categories = [...new Set(symbols.map((sym) => sym.category))];
+        return { symbols, categories };
+      }),
+
+    openEditor: () => set({ editorOpen: true }),
+    closeEditor: () => set({ editorOpen: false }),
+
+    openImportDialog: () => set({ importDialogOpen: true }),
+    closeImportDialog: () => set({ importDialogOpen: false }),
   };
 });
 

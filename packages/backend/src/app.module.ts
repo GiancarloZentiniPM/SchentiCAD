@@ -9,6 +9,7 @@ import { CrossReferenceModule } from "./modules/cross-reference/cross-reference.
 import { PlantModule } from "./modules/plant/plant.module";
 import { LocationModule } from "./modules/location/location.module";
 import { VersioningModule } from "./modules/versioning/versioning.module";
+import { SymbolModule } from "./modules/symbol/symbol.module";
 import { HealthController } from "./health.controller";
 
 @Module({
@@ -23,6 +24,7 @@ import { HealthController } from "./health.controller";
     PlantModule,
     LocationModule,
     VersioningModule,
+    SymbolModule,
   ],
   controllers: [HealthController],
 })

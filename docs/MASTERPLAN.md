@@ -260,8 +260,8 @@ DB-Sync + Elektro-Logik → Git-Versioning → Automatisierung/UX → EDZ-Import
 
 | ID | Task | Abhängigkeit |
 |---|---|---|
-| 4.1 | Symbol-Editor | keine |
-| 4.2 | EDZ Deep-Parser | 4.1 |
+| 4.1 | Symbol-Editor ✅ | keine |
+| 4.2 | EDZ Deep-Parser ✅ | 4.1 |
 
 **4.1 — Symbol-Editor**
 - UI: Geometry-Primitives zeichnen (Line, Rect, Circle, Arc, Text)

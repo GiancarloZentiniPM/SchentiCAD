@@ -1032,3 +1032,221 @@ body,
 .language-toggle:hover {
   color: var(--accent) !important;
 }
+
+/* ============================================================
+   Symbol Editor
+   ============================================================ */
+
+.symbol-editor-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.symbol-editor-dialog {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.symbol-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.symbol-editor-body {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  overflow: auto;
+  flex: 1;
+}
+
+.symbol-editor-props {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-primary);
+}
+
+.symbol-editor-props label {
+  color: var(--text-secondary);
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+.symbol-editor-props input,
+.symbol-editor-props select {
+  padding: 3px 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: var(--font-family);
+  outline: none;
+}
+
+.symbol-editor-canvas {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.symbol-editor-tools {
+  display: flex;
+  gap: 2px;
+}
+
+.symbol-editor-tools button {
+  padding: 4px 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.symbol-editor-tools button:hover {
+  background: var(--bg-hover);
+}
+
+.symbol-editor-tools button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.symbol-editor-footer {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border-color);
+}
+
+.symbol-editor-footer button {
+  padding: 4px 10px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.symbol-editor-footer button:hover {
+  background: var(--bg-hover);
+}
+
+.symbol-editor-footer button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ============================================================
+   EDZ Import Dialog
+   ============================================================ */
+
+.edz-import-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2100;
+}
+
+.edz-import-dialog {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.edz-import-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.edz-import-body {
+  padding: 12px;
+  overflow: auto;
+  flex: 1;
+}
+
+.edz-import-footer {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border-color);
+  justify-content: flex-end;
+}
+
+.edz-import-footer button {
+  padding: 4px 10px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.edz-import-footer button:hover {
+  background: var(--bg-hover);
+}
+
+.edz-import-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.edz-import-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text-primary);
+}
+
+.edz-import-card:hover {
+  border-color: var(--accent);
+}
+
+.edz-import-card.selected {
+  border-color: var(--accent);
+  background: rgba(0, 122, 204, 0.1);
+}

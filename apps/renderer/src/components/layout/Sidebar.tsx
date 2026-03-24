@@ -78,6 +78,8 @@ function SymbolsView() {
   const searchQuery = useSymbolLibrary((s) => s.searchQuery);
   const setSearchQuery = useSymbolLibrary((s) => s.setSearchQuery);
   const setPlacingSymbolId = useUIStore((s) => s.setPlacingSymbolId);
+  const openEditor = useSymbolLibrary((s) => s.openEditor);
+  const openImportDialog = useSymbolLibrary((s) => s.openImportDialog);
 
   const symbols = filteredSymbols();
 
@@ -114,6 +116,42 @@ function SymbolsView() {
             outline: "none",
           }}
         />
+      </div>
+
+      {/* New Symbol Button */}
+      <div style={{ padding: "0 12px 4px", display: "flex", gap: 4 }}>
+        <button
+          onClick={openEditor}
+          data-testid="new-symbol-btn"
+          style={{
+            flex: 1,
+            padding: "4px 8px",
+            background: "var(--accent)",
+            color: "#fff",
+            border: "none",
+            borderRadius: 3,
+            fontSize: 11,
+            cursor: "pointer",
+          }}
+        >
+          ➕ Neues Symbol
+        </button>
+        <button
+          onClick={openImportDialog}
+          data-testid="import-edz-btn"
+          style={{
+            flex: 1,
+            padding: "4px 8px",
+            background: "var(--bg-tertiary)",
+            color: "var(--text-primary)",
+            border: "1px solid var(--border-color)",
+            borderRadius: 3,
+            fontSize: 11,
+            cursor: "pointer",
+          }}
+        >
+          📥 Import
+        </button>
       </div>
 
       {/* Categories */}

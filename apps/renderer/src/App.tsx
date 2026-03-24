@@ -11,10 +11,12 @@ import { CommitDialog } from "./components/versioning/CommitDialog";
 import { ConflictResolver } from "./components/versioning/ConflictResolver";
 import { CommandPalette } from "./components/CommandPalette";
 import { Minimap } from "./components/Minimap";
+import { SymbolEditor } from "./components/SymbolEditor";
+import { EdzImportDialog } from "./components/EdzImportDialog";
 import { useUIStore } from "./stores/uiStore";
 import { useProjectStore } from "./stores/projectStore";
 import { useBmkStore } from "./stores/bmkStore";
-import { BUILTIN_SYMBOLS } from "./stores/symbolLibrary";
+import { BUILTIN_SYMBOLS, useSymbolLibrary } from "./stores/symbolLibrary";
 import { runErcCheck } from "./stores/ercStore";
 
 export function App() {
@@ -23,6 +25,10 @@ export function App() {
   const elements = useProjectStore((s) => s.elements);
   const wires = useProjectStore((s) => s.wires);
   const bmkEntries = useBmkStore((s) => s.entries);
+  const symbolEditorOpen = useSymbolLibrary((s) => s.editorOpen);
+  const closeEditor = useSymbolLibrary((s) => s.closeEditor);
+  const importDialogOpen = useSymbolLibrary((s) => s.importDialogOpen);
+  const closeImportDialog = useSymbolLibrary((s) => s.closeImportDialog);
 
   // Expose stores for E2E testing (dev only)
   useEffect(() => {
@@ -30,6 +36,7 @@ export function App() {
       (window as any).__zustand_uiStore = useUIStore;
       (window as any).__zustand_projectStore = useProjectStore;
       (window as any).__zustand_bmkStore = useBmkStore;
+      (window as any).__zustand_symbolLibrary = useSymbolLibrary;
       (window as any).__symbols = BUILTIN_SYMBOLS;
       (window as any).__storesReady = true;
     }
@@ -76,6 +83,8 @@ export function App() {
       <CommitDialog />
       <ConflictResolver />
       <CommandPalette />
+      {symbolEditorOpen && <SymbolEditor onClose={closeEditor} />}
+      {importDialogOpen && <EdzImportDialog onClose={closeImportDialog} />}
     </div>
   );
 }
