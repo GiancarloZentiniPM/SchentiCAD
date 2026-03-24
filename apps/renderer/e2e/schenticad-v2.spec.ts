@@ -234,7 +234,7 @@ test.describe("Activity Bar & Sidebar Navigation", () => {
     await page.locator('.activity-bar-item[title="Einstellungen"]').click();
     await expect(page.locator(".sidebar-header")).toContainText("EINSTELLUNGEN");
     await expect(page.locator(".sidebar")).toContainText("Theme: Dark");
-    await expect(page.locator(".sidebar")).toContainText("Sprache: Deutsch");
+    await expect(page.locator(".sidebar")).toContainText("Sprache");
     await expect(page.locator(".sidebar")).toContainText("Raster: 5mm");
   });
 
@@ -1358,7 +1358,7 @@ test.describe("Settings View", () => {
   test("shows all settings", async ({ page }) => {
     await page.locator('.activity-bar-item[title="Einstellungen"]').click();
     await expect(page.locator(".sidebar")).toContainText("Theme: Dark");
-    await expect(page.locator(".sidebar")).toContainText("Sprache: Deutsch");
+    await expect(page.locator(".sidebar")).toContainText("Sprache");
     await expect(page.locator(".sidebar")).toContainText("Raster: 5mm");
   });
 });

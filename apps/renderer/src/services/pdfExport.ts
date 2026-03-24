@@ -110,6 +110,14 @@ export function exportToPdf(options: ExportOptions): void {
     drawTitleBlock(doc, w, h, margin, tbData);
   }
 
+  // Add PDF metadata
+  doc.setProperties({
+    title: titleBlockData.projectName || "SchentiCAD Export",
+    subject: "Elektro-CAD Schaltplan",
+    author: titleBlockData.creator || "SchentiCAD",
+    creator: "SchentiCAD v0.1.0",
+  });
+
   // Save
   const filename = `${titleBlockData.projectName || "SchentiCAD"}_Export.pdf`;
   doc.save(filename);

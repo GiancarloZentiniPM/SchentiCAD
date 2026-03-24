@@ -35,6 +35,7 @@ export function CanvasArea() {
   // Wire drawing state
   const wirePointsRef = useRef<{ x: number; y: number }[]>([]);
   const placementRotationRef = useRef(0);
+  const measurePointRef = useRef<{ x: number; y: number } | null>(null);
 
   const handleCanvasClick = useCallback(
     (x: number, y: number) => {
@@ -63,6 +64,14 @@ export function CanvasArea() {
         engineRef.current?.drawWirePreview(wirePointsRef.current);
       } else if (activeTool === "select") {
         clearSelection();
+      } else if (activeTool === "measure") {
+        if (!measurePointRef.current) {
+          measurePointRef.current = { x, y };
+        } else {
+          const p1 = measurePointRef.current;
+          engineRef.current?.renderMeasurement(p1.x, p1.y, x, y);
+          measurePointRef.current = null;
+        }
       }
     },
     [activeTool, placingSymbolId, activePageId, addElement, clearSelection],
@@ -156,6 +165,9 @@ export function CanvasArea() {
 
     if (activeTool !== "place" || !placingSymbolId) {
       engine.clearOverlay();
+    }
+    if (activeTool !== "measure") {
+      measurePointRef.current = null;
     }
   }, [activeTool, placingSymbolId]);
 

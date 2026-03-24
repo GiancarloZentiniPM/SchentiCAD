@@ -1,0 +1,75 @@
+{
+  "app.title": "SchentiCAD",
+  "tool.select": "Select",
+  "tool.wire": "Wire",
+  "tool.place": "Component",
+  "tool.text": "Text",
+  "tool.measure": "Measure",
+  "toolbar.undo": "Undo",
+  "toolbar.redo": "Redo",
+  "toolbar.pdf": "PDF",
+  "toolbar.lists": "Lists",
+  "toolbar.commit": "Commit",
+
+  "sidebar.explorer": "EXPLORER",
+  "sidebar.symbols": "SYMBOL LIBRARY",
+  "sidebar.search": "SEARCH",
+  "sidebar.bom": "BILL OF MATERIALS",
+  "sidebar.settings": "SETTINGS",
+  "sidebar.history": "VERSION HISTORY",
+
+  "activitybar.explorer": "Explorer",
+  "activitybar.symbols": "Symbols",
+  "activitybar.search": "Search",
+  "activitybar.bom": "Bill of Materials",
+  "activitybar.history": "Version History",
+  "activitybar.settings": "Settings",
+
+  "status.version": "SchentiCAD v0.1.0",
+  "status.selected": "selected",
+  "status.page": "Page",
+  "status.elements": "Elements",
+
+  "explorer.pages": "SCHEMATIC PAGES",
+  "explorer.project_info": "PROJECT INFO",
+  "explorer.pages_count": "Pages",
+
+  "symbols.search": "Search symbols...",
+  "symbols.all": "All Categories",
+  "symbols.count": "Symbols",
+
+  "bom.components": "COMPONENTS",
+  "bom.wires": "WIRES",
+  "bom.export_bom": "Export BOM as CSV",
+  "bom.export_wires": "Export wire list as CSV",
+  "bom.empty": "No components or wires placed.",
+
+  "settings.theme": "Theme: Dark",
+  "settings.language": "Language",
+  "settings.grid": "Grid: 5mm",
+
+  "command.search": "Search commands...",
+  "command.no_result": "No results",
+
+  "commit.title": "Create Commit",
+  "commit.placeholder": "Enter commit message...",
+  "commit.cancel": "Cancel",
+  "commit.submit": "Commit",
+
+  "conflict.title": "Merge Conflicts",
+  "conflict.mine": "Mine",
+  "conflict.theirs": "Theirs",
+  "conflict.cancel": "Cancel",
+  "conflict.apply": "Apply",
+  "conflict.resolved": "resolved",
+
+  "history.branch": "BRANCH",
+  "history.new_branch": "New Branch",
+  "history.commits": "COMMITS",
+  "history.no_commits": "No commits yet. Create a commit via the toolbar.",
+  "history.loading": "Loading...",
+  "history.create": "Create",
+
+  "problems.title": "Problems",
+  "problems.none": "No problems"
+}

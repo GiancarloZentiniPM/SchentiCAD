@@ -1,0 +1,75 @@
+{
+  "app.title": "SchentiCAD",
+  "tool.select": "Auswahl",
+  "tool.wire": "Draht",
+  "tool.place": "Komponente",
+  "tool.text": "Text",
+  "tool.measure": "Messen",
+  "toolbar.undo": "Rückgängig",
+  "toolbar.redo": "Wiederholen",
+  "toolbar.pdf": "PDF",
+  "toolbar.lists": "Listen",
+  "toolbar.commit": "Commit",
+
+  "sidebar.explorer": "EXPLORER",
+  "sidebar.symbols": "SYMBOLBIBLIOTHEK",
+  "sidebar.search": "SUCHE",
+  "sidebar.bom": "STÜCKLISTE",
+  "sidebar.settings": "EINSTELLUNGEN",
+  "sidebar.history": "VERSIONSHISTORIE",
+
+  "activitybar.explorer": "Explorer",
+  "activitybar.symbols": "Symbole",
+  "activitybar.search": "Suche",
+  "activitybar.bom": "Stückliste",
+  "activitybar.history": "Versionshistorie",
+  "activitybar.settings": "Einstellungen",
+
+  "status.version": "SchentiCAD v0.1.0",
+  "status.selected": "ausgewählt",
+  "status.page": "Seite",
+  "status.elements": "Elemente",
+
+  "explorer.pages": "SCHALTPLAN-SEITEN",
+  "explorer.project_info": "PROJEKT-INFO",
+  "explorer.pages_count": "Seiten",
+
+  "symbols.search": "Symbol suchen...",
+  "symbols.all": "Alle Kategorien",
+  "symbols.count": "Symbole",
+
+  "bom.components": "BAUTEILE",
+  "bom.wires": "DRÄHTE",
+  "bom.export_bom": "Stückliste als CSV exportieren",
+  "bom.export_wires": "Drahtliste als CSV exportieren",
+  "bom.empty": "Keine Bauteile oder Drähte platziert.",
+
+  "settings.theme": "Theme: Dark",
+  "settings.language": "Sprache",
+  "settings.grid": "Raster: 5mm",
+
+  "command.search": "Befehl suchen...",
+  "command.no_result": "Kein Ergebnis",
+
+  "commit.title": "Commit erstellen",
+  "commit.placeholder": "Commit-Nachricht eingeben...",
+  "commit.cancel": "Abbrechen",
+  "commit.submit": "Commit",
+
+  "conflict.title": "Merge-Konflikte",
+  "conflict.mine": "Meins",
+  "conflict.theirs": "Deren",
+  "conflict.cancel": "Abbrechen",
+  "conflict.apply": "Anwenden",
+  "conflict.resolved": "gelöst",
+
+  "history.branch": "BRANCH",
+  "history.new_branch": "Neuer Branch",
+  "history.commits": "COMMITS",
+  "history.no_commits": "Keine Commits vorhanden. Erstelle einen Commit über die Toolbar.",
+  "history.loading": "Laden...",
+  "history.create": "Erstellen",
+
+  "problems.title": "Probleme",
+  "problems.none": "Keine Probleme"
+}

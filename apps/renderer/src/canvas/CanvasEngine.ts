@@ -584,6 +584,54 @@ export class CanvasEngine {
     this.overlayLayer.removeChildren();
   }
 
+  /** Draw a measurement line between two points (in mm) */
+  renderMeasurement(x1: number, y1: number, x2: number, y2: number) {
+    this.overlayLayer.removeChildren();
+    const s = PIXELS_PER_MM;
+    const g = new Graphics();
+
+    // Dashed measurement line
+    g.moveTo(x1 * s, y1 * s);
+    g.lineTo(x2 * s, y2 * s);
+    g.stroke({ color: 0x00ff88, width: 1.5 });
+
+    // End markers
+    const markerSize = 3 * s;
+    g.moveTo(x1 * s - markerSize / 2, y1 * s);
+    g.lineTo(x1 * s + markerSize / 2, y1 * s);
+    g.stroke({ color: 0x00ff88, width: 2 });
+    g.moveTo(x1 * s, y1 * s - markerSize / 2);
+    g.lineTo(x1 * s, y1 * s + markerSize / 2);
+    g.stroke({ color: 0x00ff88, width: 2 });
+
+    g.moveTo(x2 * s - markerSize / 2, y2 * s);
+    g.lineTo(x2 * s + markerSize / 2, y2 * s);
+    g.stroke({ color: 0x00ff88, width: 2 });
+    g.moveTo(x2 * s, y2 * s - markerSize / 2);
+    g.lineTo(x2 * s, y2 * s + markerSize / 2);
+    g.stroke({ color: 0x00ff88, width: 2 });
+
+    this.overlayLayer.addChild(g);
+
+    // Distance label
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const midX = ((x1 + x2) / 2) * s;
+    const midY = ((y1 + y2) / 2) * s;
+
+    const style = new TextStyle({
+      fontSize: 11,
+      fill: 0x00ff88,
+      fontFamily: "Consolas, monospace",
+      fontWeight: "bold",
+    });
+    const label = new Text({ text: `${dist.toFixed(1)} mm`, style });
+    label.x = midX + 5;
+    label.y = midY - 14;
+    this.overlayLayer.addChild(label);
+  }
+
   // ─── Coordinate Utils ─────────────────────────────
 
   screenToWorld(screenX: number, screenY: number): { x: number; y: number } {

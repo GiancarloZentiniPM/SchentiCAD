@@ -271,10 +271,30 @@ function BomView() {
 }
 
 function SettingsView() {
+  const language = useUIStore((s) => s.language);
+  const setLanguage = useUIStore((s) => s.setLanguage);
+
   return (
     <div style={{ padding: 12 }}>
       <div className="sidebar-item">🌙 Theme: Dark</div>
-      <div className="sidebar-item">🌐 Sprache: Deutsch</div>
+      <div className="sidebar-item" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span>🌐 Sprache</span>
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value as "de" | "en")}
+          style={{
+            background: "var(--bg-input)",
+            color: "var(--text-primary)",
+            border: "1px solid var(--border-color)",
+            borderRadius: 3,
+            padding: "2px 6px",
+            fontSize: 11,
+          }}
+        >
+          <option value="de">Deutsch</option>
+          <option value="en">English</option>
+        </select>
+      </div>
       <div className="sidebar-item">📐 Raster: 5mm</div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useUIStore } from "../../stores/uiStore";
 import { useProjectStore } from "../../stores/projectStore";
+import type { Language } from "@schenticad/shared";
 
 const toolLabels: Record<string, string> = {
   select: "Auswahl",
@@ -16,12 +17,18 @@ export function Statusbar() {
   const cursorX = useUIStore((s) => s.cursorX);
   const cursorY = useUIStore((s) => s.cursorY);
   const activePageId = useUIStore((s) => s.activePageId);
+  const language = useUIStore((s) => s.language);
+  const setLanguage = useUIStore((s) => s.setLanguage);
   const pages = useProjectStore((s) => s.pages);
   const elements = useProjectStore((s) => s.elements);
   const selectedElementIds = useProjectStore((s) => s.selectedElementIds);
 
   const activePage = pages.find((p) => p.id === activePageId);
   const pageNum = activePage?.pageNumber ?? 1;
+
+  const toggleLang = () => {
+    setLanguage(language === "de" ? "en" : "de");
+  };
 
   return (
     <div className="statusbar">
@@ -37,7 +44,14 @@ export function Statusbar() {
       <span className="statusbar-item">🔍 {zoom}%</span>
       <span className="statusbar-item">Seite {pageNum}/{pages.length}</span>
       <span className="statusbar-item">{elements.length} Elemente</span>
-      <span className="statusbar-item">DE</span>
+      <span
+        className="statusbar-item language-toggle"
+        onClick={toggleLang}
+        title="Sprache umschalten / Toggle language"
+        style={{ cursor: "pointer" }}
+      >
+        {language.toUpperCase()}
+      </span>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import type { ToolType, SidebarView } from "@schenticad/shared";
+import type { ToolType, SidebarView, Language } from "@schenticad/shared";
+import { setLanguage as setI18nLanguage } from "../i18n";
 
 interface UIState {
   activeTool: ToolType;
@@ -11,6 +12,7 @@ interface UIState {
   zoom: number;
   cursorX: number;
   cursorY: number;
+  language: Language;
 
   setActiveTool: (tool: ToolType) => void;
   setSidebarView: (view: SidebarView) => void;
@@ -20,6 +22,7 @@ interface UIState {
   setPlacingSymbolId: (id: string | null) => void;
   setZoom: (zoom: number) => void;
   setCursor: (x: number, y: number) => void;
+  setLanguage: (lang: Language) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -32,6 +35,7 @@ export const useUIStore = create<UIState>((set) => ({
   zoom: 100,
   cursorX: 0,
   cursorY: 0,
+  language: "de",
 
   setActiveTool: (tool) => set({ activeTool: tool }),
   setSidebarView: (view) => set({ sidebarView: view, sidebarVisible: true }),
@@ -41,4 +45,8 @@ export const useUIStore = create<UIState>((set) => ({
   setPlacingSymbolId: (id) => set({ placingSymbolId: id, activeTool: id ? "place" : "select" }),
   setZoom: (zoom) => set({ zoom }),
   setCursor: (x, y) => set({ cursorX: x, cursorY: y }),
+  setLanguage: (lang) => {
+    setI18nLanguage(lang);
+    set({ language: lang });
+  },
 }));

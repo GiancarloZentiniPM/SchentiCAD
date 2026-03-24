@@ -214,12 +214,12 @@ DB-Sync + Elektro-Logik → Git-Versioning → Automatisierung/UX → EDZ-Import
 
 | ID | Task | Abhängigkeit |
 |---|---|---|
-| 3.1 | Automatische Listengeneratoren | Phase 1 B1 |
-| 3.2 | S-Key HUD (Command Palette) | keine |
-| 3.3 | Minimap | keine |
-| 3.4 | Multilingual Toggle (DE/EN) | keine |
-| 3.5 | Measure-Tool | keine |
-| 3.6 | High-End PDF Export | Phase 1 B2 |
+| 3.1 | Automatische Listengeneratoren ✅ | Phase 1 B1 |
+| 3.2 | S-Key HUD (Command Palette) ✅ | keine |
+| 3.3 | Minimap ✅ | keine |
+| 3.4 | Multilingual Toggle (DE/EN) ✅ | keine |
+| 3.5 | Measure-Tool ✅ | keine |
+| 3.6 | High-End PDF Export ✅ | Phase 1 B2 |
 
 **3.1 — Listengeneratoren**
 - Klemmenplan: Alle Klemmen → gruppiert nach Klemmenleiste → `terminal_plan`-Seite
