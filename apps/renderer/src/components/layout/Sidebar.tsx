@@ -93,6 +93,8 @@ function SymbolsView() {
     "Befehlsgeräte": "👆",
     "Signalgeräte": "💡",
     "Wandler": "🔄",
+    "Antriebstechnik": "🔧",
+    "Steuerungstechnik": "🖥️",
     "Allgemein": "📐",
   };
 

@@ -16,6 +16,8 @@ const CATEGORY_PREFIX_MAP: Record<string, string> = {
   Befehlsgeräte: "-S",
   Signalgeräte: "-H",
   Wandler: "-T",
+  Antriebstechnik: "-U",
+  Steuerungstechnik: "-A",
   Allgemein: "-A",
 };
 
@@ -25,15 +27,24 @@ const SYMBOL_PREFIX_MAP: Record<string, string> = {
   "sym-relay": "-K",
   "sym-no-contact": "-S",
   "sym-nc-contact": "-S",
+  "sym-changeover": "-S",
   "sym-fuse": "-F",
   "sym-circuit-breaker": "-Q",
+  "sym-rcd": "-F",
+  "sym-overload-relay": "-F",
   "sym-motor-3ph": "-M",
   "sym-motor-1ph": "-M",
   "sym-terminal": "-X",
   "sym-pushbutton-no": "-S",
+  "sym-emergency-stop": "-S",
   "sym-indicator-light": "-H",
   "sym-transformer": "-T",
+  "sym-vfd": "-U",
+  "sym-plc-di": "-A",
+  "sym-plc-do": "-A",
   "sym-ground": "-E",
+  "sym-main-switch": "-Q",
+  "sym-timer-relay": "-K",
 };
 
 export type BmkFillMode = "fill_gaps" | "sequential";

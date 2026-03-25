@@ -255,10 +255,11 @@ test.describe("Symbol Library", () => {
     await page.locator('.activity-bar-item[title="Symbole"]').click();
   });
 
-  test("shows all 9 symbol categories", async ({ page }) => {
+  test("shows all 11 symbol categories", async ({ page }) => {
     const categories = [
       "Schaltgeräte", "Kontakte", "Schutzgeräte", "Motoren",
-      "Klemmen", "Befehlsgeräte", "Signalgeräte", "Wandler", "Allgemein",
+      "Klemmen", "Befehlsgeräte", "Signalgeräte", "Wandler",
+      "Antriebstechnik", "Steuerungstechnik", "Allgemein",
     ];
     for (const cat of categories) {
       await expect(page.locator(".sidebar-item").filter({ hasText: cat })).toBeVisible();
@@ -267,7 +268,7 @@ test.describe("Symbol Library", () => {
 
   test("shows all symbols with count", async ({ page }) => {
     await expect(page.locator(".sidebar")).toContainText("Alle Kategorien");
-    await expect(page.locator(".sidebar")).toContainText("13 Symbole");
+    await expect(page.locator(".sidebar")).toContainText("22 Symbole");
   });
 
   test("filter symbols by category: Motoren", async ({ page }) => {
@@ -557,11 +558,16 @@ test.describe("BMK — Betriebsmittelkennzeichen", () => {
     const pairs: [string, string][] = [
       ["sym-contactor", "-K"], ["sym-relay", "-K"],
       ["sym-no-contact", "-S"], ["sym-nc-contact", "-S"],
+      ["sym-changeover", "-S"],
       ["sym-fuse", "-F"], ["sym-circuit-breaker", "-Q"],
+      ["sym-rcd", "-F"], ["sym-overload-relay", "-F"],
       ["sym-motor-3ph", "-M"], ["sym-motor-1ph", "-M"],
       ["sym-terminal", "-X"], ["sym-pushbutton-no", "-S"],
+      ["sym-emergency-stop", "-S"],
       ["sym-indicator-light", "-H"], ["sym-transformer", "-T"],
+      ["sym-vfd", "-U"], ["sym-plc-di", "-A"], ["sym-plc-do", "-A"],
       ["sym-ground", "-E"],
+      ["sym-main-switch", "-Q"], ["sym-timer-relay", "-K"],
     ];
 
     let x = 50;
@@ -1197,18 +1203,24 @@ test.describe("Cross-Page Isolation", () => {
 });
 
 // ===========================================================================
-// 23. ALL 13 SYMBOLS
+// 23. ALL 21 IEC 60617 SYMBOLS
 // ===========================================================================
 
-test.describe("All 13 Symbols Placeable", () => {
+test.describe("All 21 Symbols Placeable", () => {
   const symbols: [string, string][] = [
     ["sym-contactor", "Schütz"], ["sym-relay", "Relais"],
     ["sym-no-contact", "Schließer"], ["sym-nc-contact", "Öffner"],
+    ["sym-changeover", "Wechsler"],
     ["sym-fuse", "Sicherung"], ["sym-circuit-breaker", "Leitungsschutzschalter"],
+    ["sym-rcd", "FI-Schutzschalter"], ["sym-overload-relay", "Überlastrelais"],
     ["sym-motor-3ph", "Motor 3~"], ["sym-motor-1ph", "Motor 1~"],
     ["sym-terminal", "Klemme"], ["sym-pushbutton-no", "Taster"],
+    ["sym-emergency-stop", "Not-Aus"],
     ["sym-indicator-light", "Meldeleuchte"], ["sym-transformer", "Transformator"],
+    ["sym-vfd", "Frequenzumrichter"],
+    ["sym-plc-di", "SPS Eingang"], ["sym-plc-do", "SPS Ausgang"],
     ["sym-ground", "Erdung"],
+    ["sym-main-switch", "Hauptschalter"], ["sym-timer-relay", "Zeitrelais"],
   ];
   for (const [symId, symName] of symbols) {
     test(`can place ${symName}`, async ({ page }) => {
@@ -1516,11 +1528,11 @@ test.describe("BMK Fill Mode", () => {
 // ===========================================================================
 
 test.describe("Symbol Library Store Extensions", () => {
-  test("initial symbols are 13 builtins", async ({ page }) => {
+  test("initial symbols are 22 builtins", async ({ page }) => {
     const count = await page.evaluate(() => {
       return (window as any).__zustand_symbolLibrary?.getState()?.symbols?.length ?? 0;
     });
-    expect(count).toBe(13);
+    expect(count).toBe(22);
   });
 
   test("addCustomSymbol adds a new symbol", async ({ page }) => {
@@ -1540,7 +1552,7 @@ test.describe("Symbol Library Store Extensions", () => {
     const count = await page.evaluate(() => {
       return (window as any).__zustand_symbolLibrary?.getState()?.symbols?.length ?? 0;
     });
-    expect(count).toBe(14);
+    expect(count).toBe(23);
   });
 
   test("removeCustomSymbol removes custom but not builtin", async ({ page }) => {
