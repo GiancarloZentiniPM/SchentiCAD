@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import { CanvasEngine } from "../../canvas/CanvasEngine";
 import { useUIStore } from "../../stores/uiStore";
 import { useProjectStore, generateId } from "../../stores/projectStore";
@@ -273,8 +273,49 @@ export function CanvasArea() {
     return () => window.removeEventListener("keydown", handleKeyboard);
   }, [activeTool, activePageId, selectedElementIds, clearSelection, addWire, setActiveTool, setPlacingSymbolId, placingSymbolId]);
 
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    if (e.dataTransfer.types.includes("application/schenticad-symbol")) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
+    }
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const symbolId = e.dataTransfer.getData("application/schenticad-symbol");
+      if (!symbolId || !engineRef.current) return;
+
+      const engine = engineRef.current;
+      const world = engine.screenToWorld(e.clientX, e.clientY);
+      const snapped = engine.snapToGrid(world.x, world.y);
+
+      const elementId = generateId("el");
+      const symbol = allSymbols.find((s) => s.id === symbolId) ?? BUILTIN_SYMBOLS.find((s) => s.id === symbolId);
+      const category = symbol?.category ?? "Allgemein";
+      const bmk = useBmkStore.getState().allocate(elementId, symbolId, category);
+      addElement({
+        id: elementId,
+        pageId: activePageId || "page-1",
+        symbolId,
+        x: snapped.x,
+        y: snapped.y,
+        rotation: 0,
+        mirrored: false,
+        bmk,
+        properties: {},
+      });
+    },
+    [activePageId, addElement, allSymbols],
+  );
+
   return (
-    <div className="canvas-area" ref={containerRef}>
+    <div
+      className="canvas-area"
+      ref={containerRef}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
       <canvas ref={canvasRef} />
     </div>
   );

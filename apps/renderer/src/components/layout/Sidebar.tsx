@@ -187,9 +187,14 @@ function SymbolsView() {
           <div
             key={sym.id}
             className="sidebar-item"
+            draggable="true"
+            onDragStart={(e) => {
+              e.dataTransfer.setData("application/schenticad-symbol", sym.id);
+              e.dataTransfer.effectAllowed = "copy";
+            }}
             onClick={() => setPlacingSymbolId(sym.id)}
             style={{ cursor: "grab" }}
-            title={`${sym.name} — Klicken zum Platzieren`}
+            title={`${sym.name} — Ziehen oder Klicken zum Platzieren`}
           >
             <span style={{ fontSize: 14, marginRight: 4 }}>
               {categoryIcons[sym.category] || "📐"}

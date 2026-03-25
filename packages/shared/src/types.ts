@@ -69,7 +69,8 @@ export type GeometryPrimitive =
   | { type: "arc"; cx: number; cy: number; r: number; startAngle: number; endAngle: number }
   | { type: "rect"; x: number; y: number; width: number; height: number }
   | { type: "polyline"; points: number[] }
-  | { type: "text"; x: number; y: number; text: string; fontSize: number };
+  | { type: "text"; x: number; y: number; text: string; fontSize: number }
+  | { type: "path"; d: string };
 
 export interface SymbolDefinition {
   id: string;

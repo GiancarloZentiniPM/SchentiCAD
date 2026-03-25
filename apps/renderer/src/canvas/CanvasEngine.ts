@@ -520,6 +520,9 @@ export class CanvasEngine {
           }
           break;
         }
+        case "path":
+          this.drawSvgPath(g, prim.d, s);
+          break;
         case "text": {
           const style = new TextStyle({
             fontSize: prim.fontSize * s * 0.3,
@@ -536,6 +539,202 @@ export class CanvasEngine {
           break;
         }
       }
+    }
+  }
+
+  /** Parse SVG path `d` string and draw with PixiJS Graphics, scaled by `s` (PIXELS_PER_MM). */
+  private drawSvgPath(g: Graphics, d: string, s: number) {
+    const segs = d.match(/[MLHVCSQTAZmlhvcsqtaz][^MLHVCSQTAZmlhvcsqtaz]*/g);
+    if (!segs) return;
+
+    let cx = 0, cy = 0;
+    let sx = 0, sy = 0; // sub-path start
+    let lastCx2 = 0, lastCy2 = 0; // last control point for S/T
+
+    const nums = (str: string): number[] => {
+      const r: number[] = [];
+      const re = /[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(str)) !== null) r.push(parseFloat(m[0]));
+      return r;
+    };
+
+    for (const seg of segs) {
+      const cmd = seg[0]!;
+      const n = nums(seg.slice(1));
+
+      switch (cmd) {
+        case "M": cx = n[0]!; cy = n[1]!; g.moveTo(cx * s, cy * s); sx = cx; sy = cy;
+          for (let i = 2; i < n.length; i += 2) { cx = n[i]!; cy = n[i + 1]!; g.lineTo(cx * s, cy * s); }
+          break;
+        case "m": cx += n[0]!; cy += n[1]!; g.moveTo(cx * s, cy * s); sx = cx; sy = cy;
+          for (let i = 2; i < n.length; i += 2) { cx += n[i]!; cy += n[i + 1]!; g.lineTo(cx * s, cy * s); }
+          break;
+        case "L":
+          for (let i = 0; i < n.length; i += 2) { cx = n[i]!; cy = n[i + 1]!; g.lineTo(cx * s, cy * s); }
+          break;
+        case "l":
+          for (let i = 0; i < n.length; i += 2) { cx += n[i]!; cy += n[i + 1]!; g.lineTo(cx * s, cy * s); }
+          break;
+        case "H":
+          for (const v of n) { cx = v; g.lineTo(cx * s, cy * s); }
+          break;
+        case "h":
+          for (const v of n) { cx += v; g.lineTo(cx * s, cy * s); }
+          break;
+        case "V":
+          for (const v of n) { cy = v; g.lineTo(cx * s, cy * s); }
+          break;
+        case "v":
+          for (const v of n) { cy += v; g.lineTo(cx * s, cy * s); }
+          break;
+        case "C":
+          for (let i = 0; i + 5 < n.length; i += 6) {
+            lastCx2 = n[i + 2]!; lastCy2 = n[i + 3]!;
+            g.bezierCurveTo(n[i]! * s, n[i + 1]! * s, lastCx2 * s, lastCy2 * s, n[i + 4]! * s, n[i + 5]! * s);
+            cx = n[i + 4]!; cy = n[i + 5]!;
+          }
+          break;
+        case "c":
+          for (let i = 0; i + 5 < n.length; i += 6) {
+            const x1 = cx + n[i]!, y1 = cy + n[i + 1]!;
+            lastCx2 = cx + n[i + 2]!; lastCy2 = cy + n[i + 3]!;
+            const ex = cx + n[i + 4]!, ey = cy + n[i + 5]!;
+            g.bezierCurveTo(x1 * s, y1 * s, lastCx2 * s, lastCy2 * s, ex * s, ey * s);
+            cx = ex; cy = ey;
+          }
+          break;
+        case "S":
+          for (let i = 0; i + 3 < n.length; i += 4) {
+            const rx1 = 2 * cx - lastCx2, ry1 = 2 * cy - lastCy2;
+            lastCx2 = n[i]!; lastCy2 = n[i + 1]!;
+            g.bezierCurveTo(rx1 * s, ry1 * s, lastCx2 * s, lastCy2 * s, n[i + 2]! * s, n[i + 3]! * s);
+            cx = n[i + 2]!; cy = n[i + 3]!;
+          }
+          break;
+        case "s":
+          for (let i = 0; i + 3 < n.length; i += 4) {
+            const rx1 = 2 * cx - lastCx2, ry1 = 2 * cy - lastCy2;
+            lastCx2 = cx + n[i]!; lastCy2 = cy + n[i + 1]!;
+            const ex = cx + n[i + 2]!, ey = cy + n[i + 3]!;
+            g.bezierCurveTo(rx1 * s, ry1 * s, lastCx2 * s, lastCy2 * s, ex * s, ey * s);
+            cx = ex; cy = ey;
+          }
+          break;
+        case "Q":
+          for (let i = 0; i + 3 < n.length; i += 4) {
+            lastCx2 = n[i]!; lastCy2 = n[i + 1]!;
+            g.quadraticCurveTo(lastCx2 * s, lastCy2 * s, n[i + 2]! * s, n[i + 3]! * s);
+            cx = n[i + 2]!; cy = n[i + 3]!;
+          }
+          break;
+        case "q":
+          for (let i = 0; i + 3 < n.length; i += 4) {
+            lastCx2 = cx + n[i]!; lastCy2 = cy + n[i + 1]!;
+            const ex = cx + n[i + 2]!, ey = cy + n[i + 3]!;
+            g.quadraticCurveTo(lastCx2 * s, lastCy2 * s, ex * s, ey * s);
+            cx = ex; cy = ey;
+          }
+          break;
+        case "T":
+          for (let i = 0; i + 1 < n.length; i += 2) {
+            lastCx2 = 2 * cx - lastCx2; lastCy2 = 2 * cy - lastCy2;
+            g.quadraticCurveTo(lastCx2 * s, lastCy2 * s, n[i]! * s, n[i + 1]! * s);
+            cx = n[i]!; cy = n[i + 1]!;
+          }
+          break;
+        case "t":
+          for (let i = 0; i + 1 < n.length; i += 2) {
+            lastCx2 = 2 * cx - lastCx2; lastCy2 = 2 * cy - lastCy2;
+            const ex = cx + n[i]!, ey = cy + n[i + 1]!;
+            g.quadraticCurveTo(lastCx2 * s, lastCy2 * s, ex * s, ey * s);
+            cx = ex; cy = ey;
+          }
+          break;
+        case "A": case "a": {
+          // Arc: process groups of 7 params (rx, ry, xRotation, largeArc, sweep, x, y)
+          for (let i = 0; i + 6 < n.length; i += 7) {
+            const rx = n[i]!, ry = n[i + 1]!, phi = n[i + 2]! * Math.PI / 180;
+            const fA = n[i + 3]!, fS = n[i + 4]!;
+            let ex: number, ey: number;
+            if (cmd === "A") { ex = n[i + 5]!; ey = n[i + 6]!; }
+            else { ex = cx + n[i + 5]!; ey = cy + n[i + 6]!; }
+            this.svgArcToPixi(g, cx, cy, rx, ry, phi, fA, fS, ex, ey, s);
+            cx = ex; cy = ey;
+          }
+          break;
+        }
+        case "Z": case "z":
+          g.closePath();
+          cx = sx; cy = sy;
+          break;
+      }
+    }
+    g.stroke({ color: 0x000000, width: 1.5 });
+  }
+
+  /** Convert SVG arc endpoint params to PixiJS bezier curves. */
+  private svgArcToPixi(
+    g: Graphics, x1: number, y1: number,
+    _rx: number, _ry: number, phi: number,
+    fA: number, fS: number,
+    x2: number, y2: number, s: number,
+  ) {
+    let rx = Math.abs(_rx), ry = Math.abs(_ry);
+    if (rx === 0 || ry === 0) { g.lineTo(x2 * s, y2 * s); return; }
+
+    const cosPhi = Math.cos(phi), sinPhi = Math.sin(phi);
+    const dx2 = (x1 - x2) / 2, dy2 = (y1 - y2) / 2;
+    const x1p = cosPhi * dx2 + sinPhi * dy2;
+    const y1p = -sinPhi * dx2 + cosPhi * dy2;
+
+    let lambda = (x1p * x1p) / (rx * rx) + (y1p * y1p) / (ry * ry);
+    if (lambda > 1) { const sq = Math.sqrt(lambda); rx *= sq; ry *= sq; }
+
+    const rxSq = rx * rx, rySq = ry * ry;
+    const x1pSq = x1p * x1p, y1pSq = y1p * y1p;
+    let sq = Math.max(0, (rxSq * rySq - rxSq * y1pSq - rySq * x1pSq) / (rxSq * y1pSq + rySq * x1pSq));
+    sq = Math.sqrt(sq) * (fA === fS ? -1 : 1);
+
+    const cxp = sq * (rx * y1p / ry);
+    const cyp = sq * -(ry * x1p / rx);
+    const ccx = cosPhi * cxp - sinPhi * cyp + (x1 + x2) / 2;
+    const ccy = sinPhi * cxp + cosPhi * cyp + (y1 + y2) / 2;
+
+    const theta1 = Math.atan2((y1p - cyp) / ry, (x1p - cxp) / rx);
+    let dtheta = Math.atan2((-y1p - cyp) / ry, (-x1p - cxp) / rx) - theta1;
+    if (fS === 0 && dtheta > 0) dtheta -= 2 * Math.PI;
+    if (fS === 1 && dtheta < 0) dtheta += 2 * Math.PI;
+
+    // Approximate arc with cubic bezier segments (max 90° each)
+    const segments = Math.ceil(Math.abs(dtheta) / (Math.PI / 2));
+    const da = dtheta / segments;
+    for (let i = 0; i < segments; i++) {
+      const a1 = theta1 + i * da;
+      const a2 = theta1 + (i + 1) * da;
+      const alpha = (4 / 3) * Math.tan(da / 4);
+
+      const cos1 = Math.cos(a1), sin1 = Math.sin(a1);
+      const cos2 = Math.cos(a2), sin2 = Math.sin(a2);
+
+      const ep1x = rx * cos1, ep1y = ry * sin1;
+      const ep2x = rx * cos2, ep2y = ry * sin2;
+
+      const cp1x = ep1x - alpha * rx * sin1;
+      const cp1y = ep1y + alpha * ry * cos1;
+      const cp2x = ep2x + alpha * rx * sin2;
+      const cp2y = ep2y - alpha * ry * cos2;
+
+      // Rotate and translate
+      const t = (px: number, py: number) => ({
+        x: (cosPhi * px - sinPhi * py + ccx) * s,
+        y: (sinPhi * px + cosPhi * py + ccy) * s,
+      });
+
+      const c1 = t(cp1x, cp1y);
+      const c2 = t(cp2x, cp2y);
+      const p = t(ep2x, ep2y);
+      g.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p.x, p.y);
     }
   }
 
