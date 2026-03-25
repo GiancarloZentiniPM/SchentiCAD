@@ -3,7 +3,8 @@ import { CanvasEngine } from "../../canvas/CanvasEngine";
 import { useUIStore } from "../../stores/uiStore";
 import { useProjectStore, generateId } from "../../stores/projectStore";
 import { useBmkStore } from "../../stores/bmkStore";
-import { BUILTIN_SYMBOLS } from "../../stores/symbolLibrary";
+import { useSymbolLibrary, BUILTIN_SYMBOLS } from "../../stores/symbolLibrary";
+import { useCrossRefStore } from "../../stores/crossRefStore";
 
 export function CanvasArea() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,9 +29,12 @@ export function CanvasArea() {
   const addToSelection = useProjectStore((s) => s.addToSelection);
   const clearSelection = useProjectStore((s) => s.clearSelection);
   const moveElements = useProjectStore((s) => s.moveElements);
+  const removeWire = useProjectStore((s) => s.removeWire);
 
   const pages = useProjectStore((s) => s.pages);
   const projectName = useProjectStore((s) => s.projectName);
+  const allSymbols = useSymbolLibrary((s) => s.symbols);
+  const crossRefs = useCrossRefStore((s) => s.references);
 
   // Wire drawing state
   const wirePointsRef = useRef<{ x: number; y: number }[]>([]);
@@ -42,7 +46,7 @@ export function CanvasArea() {
       if (activeTool === "place" && placingSymbolId) {
         // Place element with auto-BMK
         const elementId = generateId("el");
-        const symbol = BUILTIN_SYMBOLS.find((s) => s.id === placingSymbolId);
+        const symbol = allSymbols.find((s) => s.id === placingSymbolId) ?? BUILTIN_SYMBOLS.find((s) => s.id === placingSymbolId);
         const category = symbol?.category ?? "Allgemein";
         const bmk = useBmkStore.getState().allocate(elementId, placingSymbolId, category);
         const newElement = {
@@ -62,6 +66,12 @@ export function CanvasArea() {
         // Add wire point
         wirePointsRef.current.push({ x, y });
         engineRef.current?.drawWirePreview(wirePointsRef.current);
+      } else if (activeTool === "text") {
+        // Prompt for text and place annotation
+        const text = prompt("Text eingeben:");
+        if (text) {
+          engineRef.current?.renderTextAnnotation(x, y, text);
+        }
       } else if (activeTool === "select") {
         clearSelection();
       } else if (activeTool === "measure") {
@@ -74,7 +84,7 @@ export function CanvasArea() {
         }
       }
     },
-    [activeTool, placingSymbolId, activePageId, addElement, clearSelection],
+    [activeTool, placingSymbolId, activePageId, addElement, clearSelection, allSymbols],
   );
 
   const handleElementClick = useCallback(
@@ -137,12 +147,18 @@ export function CanvasArea() {
     const engine = engineRef.current;
     if (!engine) return;
 
+    // Update symbol map with all symbols (builtins + custom)
+    engine.updateSymbolMap(allSymbols);
+
     const pageId = activePageId || "page-1";
     const pageElements = elements.filter((e) => e.pageId === pageId);
     const pageWires = wires.filter((w) => w.pageId === pageId);
 
     engine.renderElements(pageElements, selectedElementIds);
     engine.renderWires(pageWires);
+
+    // Render cross-references for this page
+    engine.renderCrossReferences(crossRefs, pageId, pages);
 
     // Update title block
     const currentPage = pages.find((p) => p.id === pageId);
@@ -156,15 +172,20 @@ export function CanvasArea() {
       totalPages: pages.length,
       description: currentPage?.name ?? "",
     });
-  }, [elements, wires, selectedElementIds, activePageId, pages, projectName]);
+  }, [elements, wires, selectedElementIds, activePageId, pages, projectName, allSymbols, crossRefs]);
 
-  // Handle placement preview
+  // Handle placement preview on cursor move
   useEffect(() => {
     const engine = engineRef.current;
     if (!engine) return;
 
-    if (activeTool !== "place" || !placingSymbolId) {
-      engine.clearOverlay();
+    if (activeTool === "place" && placingSymbolId) {
+      engine.setPlacementMode(placingSymbolId, placementRotationRef.current);
+    } else {
+      engine.setPlacementMode(null);
+      if (activeTool !== "wire" && activeTool !== "measure") {
+        engine.clearOverlay();
+      }
     }
     if (activeTool !== "measure") {
       measurePointRef.current = null;
@@ -176,10 +197,24 @@ export function CanvasArea() {
     const handleKeyboard = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
+      // Ctrl+Z / Ctrl+Y for undo/redo
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        useProjectStore.getState().undo();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        useProjectStore.getState().redo();
+        return;
+      }
+
       switch (e.key.toLowerCase()) {
         case "r":
           if (activeTool === "place") {
             placementRotationRef.current = (placementRotationRef.current + 90) % 360;
+            // Update engine rotation for live preview
+            engineRef.current?.setPlacementRotation(placementRotationRef.current);
           }
           break;
         case "escape":
@@ -187,6 +222,7 @@ export function CanvasArea() {
             wirePointsRef.current = [];
             engineRef.current?.clearOverlay();
           } else if (activeTool === "place") {
+            engineRef.current?.setPlacementMode(null);
             setPlacingSymbolId(null);
             setActiveTool("select");
           } else {
@@ -235,7 +271,7 @@ export function CanvasArea() {
 
     window.addEventListener("keydown", handleKeyboard);
     return () => window.removeEventListener("keydown", handleKeyboard);
-  }, [activeTool, activePageId, selectedElementIds, clearSelection, addWire, setActiveTool, setPlacingSymbolId]);
+  }, [activeTool, activePageId, selectedElementIds, clearSelection, addWire, setActiveTool, setPlacingSymbolId, placingSymbolId]);
 
   return (
     <div className="canvas-area" ref={containerRef}>

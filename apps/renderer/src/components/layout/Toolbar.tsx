@@ -98,8 +98,8 @@ export function Toolbar() {
         </button>
       ))}
       <div className="toolbar-separator" />
-      <button className="toolbar-btn" title="Undo (Ctrl+Z)">↩ Undo</button>
-      <button className="toolbar-btn" title="Redo (Ctrl+Y)">↪ Redo</button>
+      <button className="toolbar-btn" onClick={() => useProjectStore.getState().undo()} title="Undo (Ctrl+Z)">↩ Undo</button>
+      <button className="toolbar-btn" onClick={() => useProjectStore.getState().redo()} title="Redo (Ctrl+Y)">↪ Redo</button>
       <div className="toolbar-separator" />
       <button className="toolbar-btn" onClick={handlePdfExport} title="PDF Export">
         📄 PDF

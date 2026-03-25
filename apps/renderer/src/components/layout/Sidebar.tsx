@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useUIStore } from "../../stores/uiStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { useSymbolLibrary, BUILTIN_SYMBOLS } from "../../stores/symbolLibrary";
@@ -203,11 +204,32 @@ function SymbolsView() {
 }
 
 function SearchView() {
+  const [query, setQuery] = useState("");
+  const elements = useProjectStore((s) => s.elements);
+  const pages = useProjectStore((s) => s.pages);
+  const symbols = useSymbolLibrary((s) => s.symbols);
+  const setActivePageId = useUIStore((s) => s.setActivePageId);
+  const setSelection = useProjectStore((s) => s.setSelection);
+
+  const lowerQuery = query.toLowerCase();
+  const results = query.length >= 2
+    ? elements.filter((el) => {
+        const sym = symbols.find((s) => s.id === el.symbolId);
+        return (
+          el.bmk.toLowerCase().includes(lowerQuery) ||
+          (sym?.name.toLowerCase().includes(lowerQuery)) ||
+          (sym?.category.toLowerCase().includes(lowerQuery))
+        );
+      })
+    : [];
+
   return (
     <div style={{ padding: 12 }}>
       <input
         type="text"
-        placeholder="Suchen..."
+        placeholder="BMK, Symbol oder Kategorie suchen..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
         style={{
           width: "100%",
           padding: "4px 8px",
@@ -220,6 +242,31 @@ function SearchView() {
           outline: "none",
         }}
       />
+      {query.length >= 2 && (
+        <div style={{ marginTop: 8, fontSize: 10, color: "var(--text-muted)" }}>
+          {results.length} Treffer
+        </div>
+      )}
+      {results.map((el) => {
+        const sym = symbols.find((s) => s.id === el.symbolId);
+        const page = pages.find((p) => p.id === el.pageId);
+        return (
+          <div
+            key={el.id}
+            className="sidebar-item"
+            style={{ cursor: "pointer", fontSize: 11, flexDirection: "column", alignItems: "flex-start" }}
+            onClick={() => {
+              setActivePageId(el.pageId);
+              setSelection([el.id]);
+            }}
+          >
+            <div style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>{el.bmk}</div>
+            <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>
+              {sym?.name} • S.{page?.pageNumber}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -311,10 +358,21 @@ function BomView() {
 function SettingsView() {
   const language = useUIStore((s) => s.language);
   const setLanguage = useUIStore((s) => s.setLanguage);
+  const theme = useUIStore((s) => s.theme);
+  const toggleTheme = useUIStore((s) => s.toggleTheme);
+  const gridSize = useUIStore((s) => s.gridSize);
+  const setGridSize = useUIStore((s) => s.setGridSize);
 
   return (
     <div style={{ padding: 12 }}>
-      <div className="sidebar-item">🌙 Theme: Dark</div>
+      <div
+        className="sidebar-item"
+        onClick={toggleTheme}
+        style={{ cursor: "pointer" }}
+        title="Theme umschalten"
+      >
+        {theme === "dark" ? "🌙" : "☀️"} Theme: {theme === "dark" ? "Dark" : "Light"}
+      </div>
       <div className="sidebar-item" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span>🌐 Sprache</span>
         <select
@@ -333,7 +391,26 @@ function SettingsView() {
           <option value="en">English</option>
         </select>
       </div>
-      <div className="sidebar-item">📐 Raster: 5mm</div>
+      <div className="sidebar-item" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span>📐 Raster</span>
+        <select
+          value={gridSize}
+          onChange={(e) => setGridSize(parseInt(e.target.value))}
+          style={{
+            background: "var(--bg-input)",
+            color: "var(--text-primary)",
+            border: "1px solid var(--border-color)",
+            borderRadius: 3,
+            padding: "2px 6px",
+            fontSize: 11,
+          }}
+        >
+          <option value={1}>1 mm</option>
+          <option value={2}>2 mm</option>
+          <option value={5}>5 mm</option>
+          <option value={10}>10 mm</option>
+        </select>
+      </div>
     </div>
   );
 }

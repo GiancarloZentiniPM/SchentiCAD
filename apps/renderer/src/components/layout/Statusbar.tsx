@@ -19,6 +19,8 @@ export function Statusbar() {
   const activePageId = useUIStore((s) => s.activePageId);
   const language = useUIStore((s) => s.language);
   const setLanguage = useUIStore((s) => s.setLanguage);
+  const theme = useUIStore((s) => s.theme);
+  const toggleTheme = useUIStore((s) => s.toggleTheme);
   const pages = useProjectStore((s) => s.pages);
   const elements = useProjectStore((s) => s.elements);
   const selectedElementIds = useProjectStore((s) => s.selectedElementIds);
@@ -44,6 +46,14 @@ export function Statusbar() {
       <span className="statusbar-item">🔍 {zoom}%</span>
       <span className="statusbar-item">Seite {pageNum}/{pages.length}</span>
       <span className="statusbar-item">{elements.length} Elemente</span>
+      <span
+        className="statusbar-item"
+        onClick={toggleTheme}
+        title="Theme umschalten"
+        style={{ cursor: "pointer" }}
+      >
+        {theme === "dark" ? "🌙" : "☀️"}
+      </span>
       <span
         className="statusbar-item language-toggle"
         onClick={toggleLang}

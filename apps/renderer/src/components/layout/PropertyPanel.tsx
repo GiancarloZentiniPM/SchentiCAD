@@ -19,6 +19,8 @@ export function PropertyPanel() {
   const crossRefs = useCrossRefStore((s) => s.references);
   const setActivePageId = useUIStore((s) => s.setActivePageId);
 
+  const gridSize = useUIStore((s) => s.gridSize);
+
   const [bmkError, setBmkError] = useState<string | null>(null);
 
   const activePage = pages.find((p) => p.id === activePageId);
@@ -124,17 +126,43 @@ export function PropertyPanel() {
             )}
             <div className="property-row">
               <span className="property-label">Position:</span>
-              <span className="property-value">
-                {selectedElement.x.toFixed(1)}, {selectedElement.y.toFixed(1)}
+              <span className="property-value" style={{ display: "flex", gap: 4 }}>
+                <input
+                  type="number"
+                  value={selectedElement.x}
+                  step={5}
+                  onChange={(e) => updateElement(selectedElement.id, { x: parseFloat(e.target.value) || 0 })}
+                  style={{ width: 55, background: "var(--bg-input)", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "2px 4px", fontSize: 12 }}
+                />
+                <input
+                  type="number"
+                  value={selectedElement.y}
+                  step={5}
+                  onChange={(e) => updateElement(selectedElement.id, { y: parseFloat(e.target.value) || 0 })}
+                  style={{ width: 55, background: "var(--bg-input)", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "2px 4px", fontSize: 12 }}
+                />
               </span>
             </div>
             <div className="property-row">
               <span className="property-label">Rotation:</span>
-              <span className="property-value">{selectedElement.rotation}°</span>
+              <select
+                value={selectedElement.rotation}
+                onChange={(e) => updateElement(selectedElement.id, { rotation: parseInt(e.target.value) })}
+                style={{ background: "var(--bg-input)", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "2px 4px", fontSize: 12 }}
+              >
+                <option value={0}>0°</option>
+                <option value={90}>90°</option>
+                <option value={180}>180°</option>
+                <option value={270}>270°</option>
+              </select>
             </div>
             <div className="property-row">
               <span className="property-label">Gespiegelt:</span>
-              <span className="property-value">{selectedElement.mirrored ? "Ja" : "Nein"}</span>
+              <input
+                type="checkbox"
+                checked={selectedElement.mirrored}
+                onChange={(e) => updateElement(selectedElement.id, { mirrored: e.target.checked })}
+              />
             </div>
             <div className="property-row">
               <span className="property-label">Kategorie:</span>
@@ -263,7 +291,16 @@ export function PropertyPanel() {
           </div>
           <div className="property-row">
             <span className="property-label">Name:</span>
-            <span className="property-value">{activePage?.name || "—"}</span>
+            <input
+              className="property-input"
+              value={activePage?.name || ""}
+              onChange={(e) => {
+                if (activePage) {
+                  useProjectStore.getState().renamePage(activePage.id, e.target.value);
+                }
+              }}
+              style={{ width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "2px 4px", fontSize: 12 }}
+            />
           </div>
           <div className="property-row">
             <span className="property-label">Format:</span>
@@ -271,7 +308,7 @@ export function PropertyPanel() {
           </div>
           <div className="property-row">
             <span className="property-label">Raster:</span>
-            <span className="property-value">5 mm</span>
+            <span className="property-value">{gridSize} mm</span>
           </div>
           <div className="property-row">
             <span className="property-label">Elemente:</span>

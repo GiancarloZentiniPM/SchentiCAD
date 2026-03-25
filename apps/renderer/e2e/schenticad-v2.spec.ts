@@ -235,7 +235,7 @@ test.describe("Activity Bar & Sidebar Navigation", () => {
     await expect(page.locator(".sidebar-header")).toContainText("EINSTELLUNGEN");
     await expect(page.locator(".sidebar")).toContainText("Theme: Dark");
     await expect(page.locator(".sidebar")).toContainText("Sprache");
-    await expect(page.locator(".sidebar")).toContainText("Raster: 5mm");
+    await expect(page.locator(".sidebar")).toContainText("Raster");
   });
 
   test("toggle sidebar: clicking active view collapses sidebar", async ({ page }) => {
@@ -1359,7 +1359,7 @@ test.describe("Settings View", () => {
     await page.locator('.activity-bar-item[title="Einstellungen"]').click();
     await expect(page.locator(".sidebar")).toContainText("Theme: Dark");
     await expect(page.locator(".sidebar")).toContainText("Sprache");
-    await expect(page.locator(".sidebar")).toContainText("Raster: 5mm");
+    await expect(page.locator(".sidebar")).toContainText("Raster");
   });
 });
 
@@ -1403,7 +1403,7 @@ test.describe("Element Update", () => {
 test.describe("Search View", () => {
   test("search view has input", async ({ page }) => {
     await page.locator('.activity-bar-item[title="Suche"]').click();
-    await expect(page.locator('input[placeholder="Suchen..."]')).toBeVisible();
+    await expect(page.locator('.sidebar input[type="text"]')).toBeVisible();
   });
 });
 

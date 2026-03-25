@@ -52,6 +52,10 @@ export class CanvasEngine {
   private boundKeyDown: ((e: KeyboardEvent) => void) | null = null;
   private boundKeyUp: ((e: KeyboardEvent) => void) | null = null;
 
+  // Placement preview state
+  private placementSymbolId: string | null = null;
+  private placementRotation = 0;
+
   // Container element for resize measurements
   private container: HTMLElement | null = null;
 
@@ -319,7 +323,7 @@ export class CanvasEngine {
 
       // Draw symbol geometry
       const gfx = new Graphics();
-      this.drawGeometry(gfx, symbol.geometry);
+      this.drawGeometry(gfx, container, symbol.geometry);
       container.addChild(gfx);
 
       // Draw connection points
@@ -484,7 +488,7 @@ export class CanvasEngine {
     }
   }
 
-  private drawGeometry(g: Graphics, geometry: GeometryPrimitive[]) {
+  private drawGeometry(g: Graphics, parent: Container, geometry: GeometryPrimitive[]) {
     const s = PIXELS_PER_MM;
     for (const prim of geometry) {
       switch (prim.type) {
@@ -527,13 +531,26 @@ export class CanvasEngine {
           txt.anchor.set(0.5, 0.5);
           txt.x = prim.x * s;
           txt.y = prim.y * s;
-          // We need to add it to the parent, but since we're drawing on Graphics,
-          // we'll need the parent container. For now, add as sibling.
-          g.addChild(txt);
+          // Add text to the parent Container, not to Graphics
+          parent.addChild(txt);
           break;
         }
       }
     }
+  }
+
+  // ─── Placement mode (for live cursor preview) ──
+
+  setPlacementMode(symbolId: string | null, rotation = 0) {
+    this.placementSymbolId = symbolId;
+    this.placementRotation = rotation;
+    if (!symbolId) {
+      this.clearOverlay();
+    }
+  }
+
+  setPlacementRotation(rotation: number) {
+    this.placementRotation = rotation;
   }
 
   // ─── Overlay Drawing (wire preview, placement preview) ──
@@ -550,7 +567,7 @@ export class CanvasEngine {
     container.alpha = 0.6;
 
     const gfx = new Graphics();
-    this.drawGeometry(gfx, symbol.geometry);
+    this.drawGeometry(gfx, container, symbol.geometry);
     container.addChild(gfx);
 
     // Connection points
@@ -675,6 +692,11 @@ export class CanvasEngine {
     const snapped = this.snapToGrid(world.x, world.y);
     this.callbacks.onCursorMove(snapped.x, snapped.y);
 
+    // Live placement preview
+    if (this.placementSymbolId) {
+      this.drawPlacementPreview(this.placementSymbolId, snapped.x, snapped.y, this.placementRotation);
+    }
+
     if (this.isPanning) {
       this.viewX = e.globalX - this.panStartX;
       this.viewY = e.globalY - this.panStartY;
@@ -739,6 +761,25 @@ export class CanvasEngine {
     if (e.code === "Space") {
       this.spaceDown = false;
     }
+  }
+
+  /** Update the symbol map to include custom symbols */
+  updateSymbolMap(symbols: SymbolDefinition[]) {
+    this.symbolMap = new Map(symbols.map((s) => [s.id, s]));
+  }
+
+  /** Render a text annotation directly on the canvas overlay */
+  renderTextAnnotation(x: number, y: number, text: string) {
+    const s = PIXELS_PER_MM;
+    const style = new TextStyle({
+      fontSize: 10,
+      fill: 0x333333,
+      fontFamily: "Arial, sans-serif",
+    });
+    const txt = new Text({ text, style });
+    txt.x = x * s;
+    txt.y = y * s;
+    this.symbolLayer.addChild(txt);
   }
 
   // ─── Resize ─────────────────────────────

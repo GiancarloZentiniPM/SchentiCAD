@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { ToolType, SidebarView, Language } from "@schenticad/shared";
+import type { ToolType, SidebarView, Language, ThemeMode } from "@schenticad/shared";
 import { setLanguage as setI18nLanguage } from "../i18n";
 
 interface UIState {
@@ -13,6 +13,8 @@ interface UIState {
   cursorX: number;
   cursorY: number;
   language: Language;
+  theme: ThemeMode;
+  gridSize: number;
 
   setActiveTool: (tool: ToolType) => void;
   setSidebarView: (view: SidebarView) => void;
@@ -23,6 +25,12 @@ interface UIState {
   setZoom: (zoom: number) => void;
   setCursor: (x: number, y: number) => void;
   setLanguage: (lang: Language) => void;
+  toggleTheme: () => void;
+  setGridSize: (size: number) => void;
+}
+
+function applyTheme(theme: ThemeMode) {
+  document.documentElement.setAttribute("data-theme", theme);
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -36,6 +44,8 @@ export const useUIStore = create<UIState>((set) => ({
   cursorX: 0,
   cursorY: 0,
   language: "de",
+  theme: "dark",
+  gridSize: 5,
 
   setActiveTool: (tool) => set({ activeTool: tool }),
   setSidebarView: (view) => set({ sidebarView: view, sidebarVisible: true }),
@@ -49,4 +59,11 @@ export const useUIStore = create<UIState>((set) => ({
     setI18nLanguage(lang);
     set({ language: lang });
   },
+  toggleTheme: () =>
+    set((s) => {
+      const next = s.theme === "dark" ? "light" : "dark";
+      applyTheme(next);
+      return { theme: next };
+    }),
+  setGridSize: (size) => set({ gridSize: size }),
 }));
